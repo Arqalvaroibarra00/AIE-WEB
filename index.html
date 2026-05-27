@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIE Arquitectura — Estudio de Diseño</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --black:#080807;
+  --white:#f0ece4;
+  --red:#c13a24;
+  --red2:#e04d35;
+  --gray:#131210;
+  --gray2:#1e1c18;
+  --muted:rgba(240,236,228,.38);
+  --syne:'Syne',sans-serif;
+  --serif:'Instrument Serif',serif;
+  --mono:'DM Mono',monospace;
+  --cat-arq:#c13a24;
+  --cat-uni:#4a7c6f;
+  --cat-int:#7a6244;
+}
+html{scroll-behavior:smooth}
+body{background:var(--black);color:var(--white);font-family:var(--mono);font-weight:300;overflow-x:hidden;cursor:none}
+
+/* CURSOR */
+#cur{position:fixed;width:8px;height:8px;background:var(--red);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .22s,height .22s,background .22s}
+#cur-r{position:fixed;width:32px;height:32px;border:1px solid rgba(193,58,36,.35);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:opacity .3s}
+body:has(a:hover) #cur,body:has(.pc:hover) #cur,body:has(button:hover) #cur,.proj-open #cur{width:44px;height:44px;mix-blend-mode:difference}
+body:has(a:hover) #cur-r{opacity:0}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:600;display:flex;justify-content:space-between;align-items:center;padding:1.8rem 3rem;transition:background .4s,padding .4s}
+nav.scrolled{background:rgba(8,8,7,.93);backdrop-filter:blur(16px);padding:1.2rem 3rem;border-bottom:1px solid rgba(193,58,36,.1)}
+.nav-brand{display:flex;align-items:baseline;gap:.6rem;text-decoration:none}
+.nav-aie{font-family:var(--syne);font-size:1.3rem;font-weight:800;letter-spacing:.05em;color:var(--white)}
+.nav-aie span{color:var(--red)}
+.nav-sub{font-family:var(--mono);font-size:.5rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.nav-links{display:flex;gap:2.5rem;list-style:none}
+.nav-links a{font-family:var(--mono);font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .3s}
+.nav-links a:hover{color:var(--white)}
+.nav-cta{font-family:var(--mono);font-size:.54rem;letter-spacing:.14em;text-transform:uppercase;color:var(--black);background:var(--red);padding:.52rem 1.2rem;text-decoration:none;transition:background .3s}
+.nav-cta:hover{background:var(--red2)}
+
+/* HERO */
+#hero{height:100vh;position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;overflow:hidden;text-align:center}
+.hero-noise{position:absolute;inset:0;opacity:.04;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:200px}
+.hero-grid{position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 79px,rgba(193,58,36,.05) 80px),repeating-linear-gradient(90deg,transparent,transparent 79px,rgba(193,58,36,.05) 80px)}
+.hero-content{position:relative;z-index:2}
+.aie-logo-hero{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:1.5rem;opacity:0;animation:fadeIn .8s .1s ease forwards}
+.aie-letter{font-family:var(--syne);font-weight:800;font-size:clamp(5rem,16vw,14rem);line-height:.85;letter-spacing:-.04em;color:var(--white);display:inline-block;transition:color .3s,transform .3s}
+.aie-letter:hover{color:var(--red);transform:translateY(-4px)}
+.aie-letter.red{color:var(--red)}
+.aie-divider{width:2px;height:clamp(3rem,8vw,7.5rem);background:var(--red);margin:0 1.2rem;align-self:center;opacity:0;animation:fadeIn .6s .4s ease forwards}
+.aie-right{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:.5rem;opacity:0;animation:fadeIn .6s .5s ease forwards}
+.aie-studio{font-family:var(--syne);font-size:clamp(.8rem,2vw,1.7rem);font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:var(--white);line-height:1}
+.aie-arq{font-family:var(--mono);font-size:clamp(.42rem,.9vw,.7rem);letter-spacing:.22em;text-transform:uppercase;color:var(--red)}
+.hero-tagline{font-family:var(--serif);font-style:italic;font-size:clamp(.9rem,2vw,1.45rem);color:var(--muted);margin-bottom:2.5rem;opacity:0;animation:fadeIn .8s .6s ease forwards}
+
+.hero-cta-row{display:flex;gap:1rem;justify-content:center;opacity:0;animation:fadeIn .8s .9s ease forwards}
+.btn-r{font-family:var(--mono);font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--black);background:var(--red);padding:.85rem 2rem;text-decoration:none;transition:background .3s;display:inline-block}
+.btn-r:hover{background:var(--red2)}
+.btn-o{font-family:var(--mono);font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);border:1px solid rgba(240,236,228,.13);padding:.85rem 2rem;text-decoration:none;transition:all .3s;display:inline-block}
+.btn-o:hover{border-color:var(--white);color:var(--white)}
+.hero-scroll{position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.5rem;font-family:var(--mono);font-size:.44rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(240,236,228,.18);opacity:0;animation:fadeIn .8s 1.1s ease forwards}
+.scroll-bar{width:1px;height:46px;background:linear-gradient(to bottom,var(--red),transparent);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+
+/* STATS */
+.stats-bar{background:var(--red);display:flex;justify-content:center}
+.stat-item{flex:1;text-align:center;padding:1.7rem 1rem;border-right:1px solid rgba(8,8,7,.12);transition:background .3s}
+.stat-item:last-child{border-right:none}
+.stat-item:hover{background:var(--red2)}
+.stat-n{font-family:var(--syne);font-size:1.9rem;font-weight:700;color:var(--black);line-height:1}
+.stat-l{font-family:var(--mono);font-size:.46rem;letter-spacing:.15em;text-transform:uppercase;color:rgba(8,8,7,.45);margin-top:.25rem}
+
+/* PROJECTS */
+#projects{background:var(--black)}
+.proj-intro{padding:6rem 3rem 0;display:grid;grid-template-columns:1fr auto;align-items:end;gap:2rem}
+.pi-label{font-family:var(--mono);font-size:.5rem;letter-spacing:.2em;text-transform:uppercase;color:var(--red);margin-bottom:.7rem}
+.pi-title{font-family:var(--syne);font-size:clamp(2rem,4.5vw,4rem);font-weight:700;letter-spacing:-.02em;line-height:.95}
+.pi-title em{font-family:var(--serif);font-style:italic;font-weight:400;color:var(--muted)}
+.pi-count{font-family:var(--syne);font-size:4.5rem;font-weight:800;color:rgba(193,58,36,.1);line-height:1}
+
+/* TABS */
+.cat-tabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:rgba(240,236,228,.05);border:1px solid rgba(240,236,228,.05);margin:3rem 3rem 0;position:sticky;top:75px;z-index:100}
+.cat-btn{background:var(--black);border:none;cursor:none;padding:1.3rem 1rem;display:flex;flex-direction:column;align-items:center;gap:.4rem;transition:background .25s;position:relative;overflow:hidden}
+.cat-btn::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:transparent;transition:background .25s}
+.cat-btn.active::after,.cat-btn:hover::after{background:var(--accent)}
+.cat-btn.active,.cat-btn:hover{background:rgba(240,236,228,.02)}
+.cat-btn[data-cat="arq"]{--accent:var(--cat-arq)}
+.cat-btn[data-cat="uni"]{--accent:var(--cat-uni)}
+.cat-btn[data-cat="int"]{--accent:var(--cat-int)}
+.cat-num{font-family:var(--syne);font-size:1.1rem;font-weight:800;color:rgba(240,236,228,.12);transition:color .25s;line-height:1}
+.cat-btn.active .cat-num,.cat-btn:hover .cat-num{color:var(--accent)}
+.cat-label{font-family:var(--mono);font-size:.5rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);transition:color .25s}
+.cat-btn.active .cat-label,.cat-btn:hover .cat-label{color:var(--white)}
+.cat-count{font-family:var(--mono);font-size:.44rem;color:rgba(240,236,228,.18)}
+
+/* PANELS */
+.cat-panel{display:none;animation:fadeIn .45s ease}
+.cat-panel.active{display:block}
+
+/* Panel header */
+.cat-header{padding:3.5rem 3rem 2.5rem;display:grid;grid-template-columns:auto 1fr;gap:3rem;align-items:center;border-bottom:1px solid rgba(240,236,228,.04)}
+.cat-header-num{font-family:var(--syne);font-size:7rem;font-weight:800;line-height:1;letter-spacing:-.04em;color:rgba(240,236,228,.04)}
+.cat-header-label{font-family:var(--mono);font-size:.5rem;letter-spacing:.2em;text-transform:uppercase;margin-bottom:.6rem}
+.cat-header-title{font-family:var(--syne);font-size:clamp(1.6rem,3.5vw,3rem);font-weight:700;letter-spacing:-.02em;line-height:1}
+.cat-header-title em{font-family:var(--serif);font-style:italic;font-weight:400}
+.cat-header-desc{font-family:var(--mono);font-size:.61rem;color:var(--muted);line-height:1.75;margin-top:.9rem;max-width:500px}
+
+/* PROJECT CARDS — pantalla completa */
+.pc{position:relative;height:88vh;overflow:hidden;cursor:none}
+.pc+.pc{margin-top:4px}
+.pv{width:100%;height:100%;position:relative;transition:transform .9s cubic-bezier(.25,.46,.45,.94)}
+.pc:hover .pv{transform:scale(1.025)}
+.p-bg{width:100%;height:100%;position:absolute;inset:0}
+.p-gl{position:absolute;inset:0;pointer-events:none;background-image:repeating-linear-gradient(0deg,transparent,transparent 59px,rgba(193,58,36,.04) 60px),repeating-linear-gradient(90deg,transparent,transparent 59px,rgba(193,58,36,.04) 60px)}
+.p-arch{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.p-arch svg{opacity:.07}
+.p-grad{position:absolute;inset:0;background:linear-gradient(to top,rgba(8,8,7,.96) 0%,rgba(8,8,7,.2) 50%,transparent 100%)}
+.p-grad-l{position:absolute;inset:0;background:linear-gradient(to right,rgba(8,8,7,.55) 0%,transparent 60%)}
+.p-info{position:absolute;bottom:0;left:0;right:0;padding:2.8rem 3rem;display:grid;grid-template-columns:1fr auto;gap:2rem;align-items:flex-end}
+.p-num{font-family:var(--mono);font-size:.47rem;letter-spacing:.2em;color:var(--cat-arq);margin-bottom:.55rem}
+.p-name{font-family:var(--syne);font-size:clamp(1.7rem,4vw,3.8rem);font-weight:700;letter-spacing:-.02em;line-height:.95}
+.p-name em{font-family:var(--serif);font-style:italic;font-weight:400;color:rgba(240,236,228,.55)}
+.p-meta{font-family:var(--mono);font-size:.54rem;letter-spacing:.07em;color:rgba(240,236,228,.3);margin-top:.55rem}
+.p-tag{display:inline-flex;align-items:center;gap:.4rem;font-family:var(--mono);font-size:.44rem;letter-spacing:.12em;text-transform:uppercase;border:1px solid rgba(193,58,36,.35);color:var(--cat-arq);padding:.2rem .58rem;margin-top:.48rem}
+
+/* VER PROYECTO BUTTON — aparece en hover */
+.p-ver-btn{
+  opacity:0;transform:translateY(12px);
+  transition:opacity .35s,transform .35s;
+  font-family:var(--mono);font-size:.56rem;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--black);background:var(--red);
+  padding:.75rem 1.6rem;border:none;cursor:none;
+  display:flex;align-items:center;gap:.6rem;
+  white-space:nowrap;align-self:flex-end;
+}
+.pc:hover .p-ver-btn{opacity:1;transform:translateY(0)}
+.p-desc-h{font-family:var(--mono);font-size:.62rem;color:rgba(240,236,228,.48);line-height:1.72;max-width:280px;text-align:right;opacity:0;transform:translateY(10px);transition:opacity .35s .05s,transform .35s .05s}
+.pc:hover .p-desc-h{opacity:1;transform:translateY(0)}
+
+.pgrid2{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:4px}
+.pgrid2 .pc{height:58vh}
+.pgrid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-top:4px}
+.pgrid3 .pc{height:50vh}
+
+/* UNI CARDS */
+.uni-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(74,124,111,.06)}
+.uni-card{background:#09100e;display:grid;grid-template-columns:1fr 1fr;min-height:300px;cursor:none;transition:background .3s}
+.uni-card:hover{background:#0c1812}
+.uni-card.featured{grid-column:span 2}
+.uni-img{position:relative;overflow:hidden;background:#081410}
+.uni-img svg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);opacity:.08}
+.uni-img-gl{position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(74,124,111,.05) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(74,124,111,.05) 40px)}
+.uni-content{padding:2.5rem 2rem;display:flex;flex-direction:column;justify-content:space-between;position:relative}
+.uni-tag{font-family:var(--mono);font-size:.47rem;letter-spacing:.16em;text-transform:uppercase;color:var(--cat-uni);margin-bottom:.9rem;display:flex;align-items:center;gap:.5rem}
+.uni-tag::before{content:'';width:18px;height:1px;background:var(--cat-uni)}
+.uni-title{font-family:var(--syne);font-size:clamp(1rem,1.8vw,1.5rem);font-weight:700;letter-spacing:-.01em;line-height:1.15;color:var(--white);margin-bottom:.7rem}
+.uni-title em{font-family:var(--serif);font-style:italic;font-weight:400;color:rgba(240,236,228,.55)}
+.uni-desc{font-family:var(--mono);font-size:.6rem;color:var(--muted);line-height:1.7;flex:1}
+.uni-award{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--mono);font-size:.46rem;letter-spacing:.1em;text-transform:uppercase;border:1px solid rgba(74,124,111,.4);color:var(--cat-uni);padding:.26rem .68rem;margin-top:1rem;width:fit-content}
+.uni-meta{font-family:var(--mono);font-size:.52rem;color:rgba(240,236,228,.18);margin-top:.45rem}
+.uni-ver-btn{font-family:var(--mono);font-size:.5rem;letter-spacing:.12em;text-transform:uppercase;color:var(--cat-uni);border:1px solid rgba(74,124,111,.3);padding:.5rem 1rem;background:transparent;cursor:none;margin-top:1.2rem;width:fit-content;transition:all .25s;display:flex;align-items:center;gap:.5rem}
+.uni-card:hover .uni-ver-btn{background:var(--cat-uni);color:var(--black)}
+
+/* INT CARDS */
+.int-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(122,98,68,.06)}
+.int-card{background:#0e0c09;cursor:none;transition:background .3s}
+.int-card:hover{background:#131109}
+.int-card.span2{grid-column:span 2}
+.int-visual{height:240px;position:relative;overflow:hidden}
+.int-card.span2 .int-visual{height:320px}
+.int-vis-bg{width:100%;height:100%;position:absolute;inset:0;transition:transform .7s ease}
+.int-card:hover .int-vis-bg{transform:scale(1.04)}
+.int-vis-bg svg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);opacity:.07}
+.int-vis-gl{position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(122,98,68,.05) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(122,98,68,.05) 40px)}
+.int-vis-grad{position:absolute;bottom:0;left:0;right:0;height:55%;background:linear-gradient(to top,rgba(14,12,9,.92),transparent)}
+.int-info{padding:1.5rem}
+.int-cat-tag{font-family:var(--mono);font-size:.45rem;letter-spacing:.16em;text-transform:uppercase;color:var(--cat-int);margin-bottom:.6rem;display:flex;align-items:center;gap:.4rem}
+.int-cat-tag::before{content:'';width:14px;height:1px;background:var(--cat-int)}
+.int-title{font-family:var(--syne);font-size:clamp(.95rem,1.6vw,1.3rem);font-weight:700;letter-spacing:-.01em;line-height:1.15;color:var(--white);margin-bottom:.45rem}
+.int-title em{font-family:var(--serif);font-style:italic;font-weight:400;color:rgba(240,236,228,.5)}
+.int-desc{font-family:var(--mono);font-size:.57rem;color:var(--muted);line-height:1.65}
+.int-meta{font-family:var(--mono);font-size:.48rem;color:rgba(240,236,228,.18);margin-top:.5rem}
+.int-ver-btn{font-family:var(--mono);font-size:.48rem;letter-spacing:.12em;text-transform:uppercase;color:var(--cat-int);border:1px solid rgba(122,98,68,.28);padding:.45rem .9rem;background:transparent;cursor:none;margin-top:1rem;width:fit-content;transition:all .25s;display:flex;align-items:center;gap:.4rem}
+.int-card:hover .int-ver-btn{background:var(--cat-int);color:var(--black)}
+
+/* BG colors */
+.bg1{background:linear-gradient(145deg,#1c1408,#2a1e0c)}
+.bg2{background:linear-gradient(145deg,#08111a,#0d1e2d)}
+.bg3{background:linear-gradient(145deg,#100d14,#1a1420)}
+.bg4{background:linear-gradient(145deg,#08120e,#0e1e18)}
+.bg5{background:linear-gradient(145deg,#160c0c,#221212)}
+.bg6{background:linear-gradient(145deg,#14100a,#201a0e)}
+.bg7{background:linear-gradient(145deg,#0c0c14,#14141e)}
+.bg8{background:linear-gradient(145deg,#0a1410,#10201a)}
+.bgu1{background:linear-gradient(145deg,#081410,#0e2018)}
+.bgu2{background:linear-gradient(145deg,#0a1a10,#102614)}
+.bgu3{background:linear-gradient(145deg,#061210,#0c1c18)}
+.bgu4{background:linear-gradient(145deg,#0c1a0e,#142812)}
+.bgi1{background:linear-gradient(145deg,#14100a,#20180e)}
+.bgi2{background:linear-gradient(145deg,#120e08,#1e160c)}
+.bgi3{background:linear-gradient(145deg,#181210,#241c18)}
+.bgi4{background:linear-gradient(145deg,#100c08,#18140c)}
+.bgi5{background:linear-gradient(145deg,#1a1208,#261c0c)}
+.bgi6{background:linear-gradient(145deg,#0e0c08,#16140e)}
+
+/* ═══════════════════════════════════════
+   PROJECT DETAIL — overlay pantalla completa
+═══════════════════════════════════════ */
+#proj-detail{
+  position:fixed;inset:0;z-index:800;
+  background:var(--black);
+  overflow-y:auto;
+  transform:translateY(100%);
+  transition:transform .6s cubic-bezier(.16,1,.3,1);
+  visibility:hidden;
+}
+#proj-detail.open{transform:translateY(0);visibility:visible}
+
+/* Close btn */
+.detail-close{
+  position:fixed;top:2rem;right:3rem;z-index:900;
+  width:48px;height:48px;
+  background:rgba(8,8,7,.8);border:1px solid rgba(240,236,228,.15);
+  display:flex;align-items:center;justify-content:center;
+  cursor:none;transition:all .25s;backdrop-filter:blur(8px);
+}
+.detail-close:hover{background:var(--red);border-color:var(--red)}
+.detail-close svg{width:16px;height:16px;stroke:var(--white);stroke-width:2;fill:none}
+
+/* Detail hero */
+.detail-hero{
+  height:70vh;position:relative;overflow:hidden;
+  display:flex;align-items:flex-end;
+}
+.detail-hero-bg{width:100%;height:100%;position:absolute;inset:0}
+.detail-hero-bg svg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);opacity:.08}
+.detail-hero-gl{position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 79px,rgba(193,58,36,.04) 80px),repeating-linear-gradient(90deg,transparent,transparent 79px,rgba(193,58,36,.04) 80px)}
+.detail-hero-grad{position:absolute;inset:0;background:linear-gradient(to top,rgba(8,8,7,1) 0%,rgba(8,8,7,.4) 50%,transparent 100%)}
+.detail-hero-content{position:relative;z-index:2;padding:3rem;width:100%}
+.detail-breadcrumb{font-family:var(--mono);font-size:.52rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:1rem;display:flex;align-items:center;gap:.6rem}
+.detail-breadcrumb span{color:var(--red)}
+.detail-title{font-family:var(--syne);font-size:clamp(2.5rem,6vw,6rem);font-weight:700;letter-spacing:-.03em;line-height:.9;margin-bottom:1rem}
+.detail-title em{font-family:var(--serif);font-style:italic;font-weight:400;color:var(--red)}
+.detail-tags-row{display:flex;gap:.6rem;flex-wrap:wrap}
+.detail-tag{font-family:var(--mono);font-size:.48rem;letter-spacing:.12em;text-transform:uppercase;border:1px solid rgba(193,58,36,.35);color:var(--red);padding:.22rem .6rem}
+
+/* Detail body */
+.detail-body{max-width:1400px;margin:0 auto;padding:4rem 3rem 6rem;display:grid;grid-template-columns:1fr 1fr;gap:5rem}
+
+/* Descripción */
+.detail-desc-col{}
+.detail-section-label{font-family:var(--mono);font-size:.5rem;letter-spacing:.2em;text-transform:uppercase;color:var(--red);margin-bottom:1.2rem}
+.detail-desc-text{font-family:var(--syne);font-size:clamp(.95rem,1.5vw,1.25rem);font-weight:400;line-height:1.7;color:rgba(240,236,228,.8);letter-spacing:-.01em;margin-bottom:2.5rem}
+.detail-desc-text strong{color:var(--white);font-weight:600}
+
+/* Ficha técnica */
+.detail-ficha{border-top:1px solid rgba(240,236,228,.07);margin-top:.5rem}
+.ficha-row{display:grid;grid-template-columns:1fr 1fr;padding:.9rem 0;border-bottom:1px solid rgba(240,236,228,.05)}
+.ficha-label{font-family:var(--mono);font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(240,236,228,.28)}
+.ficha-value{font-family:var(--mono);font-size:.62rem;color:rgba(240,236,228,.7);letter-spacing:.03em}
+
+/* Equipo */
+.detail-team{margin-top:3rem}
+.team-grid{display:flex;flex-direction:column;gap:0;margin-top:1rem}
+.team-member{display:flex;align-items:center;gap:1.2rem;padding:1rem 0;border-bottom:1px solid rgba(240,236,228,.05)}
+.team-avatar{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--syne);font-size:.75rem;font-weight:700;flex-shrink:0}
+.team-info{}
+.team-name{font-family:var(--syne);font-size:.95rem;font-weight:600;color:var(--white);margin-bottom:.15rem}
+.team-role{font-family:var(--mono);font-size:.55rem;color:rgba(240,236,228,.35);letter-spacing:.06em}
+
+/* Galería */
+.detail-gallery-col{}
+.gallery-main{width:100%;aspect-ratio:4/3;position:relative;overflow:hidden;margin-bottom:1px;background:var(--gray2)}
+.gallery-main-bg{width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+.gallery-main-bg svg{opacity:.1}
+.gallery-thumbs{display:grid;grid-template-columns:repeat(4,1fr);gap:1px}
+.gallery-thumb{aspect-ratio:1;position:relative;overflow:hidden;cursor:none;background:var(--gray)}
+.gallery-thumb.active{outline:2px solid var(--red)}
+.gallery-thumb-bg{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.5rem;color:rgba(240,236,228,.2);transition:transform .4s ease}
+.gallery-thumb:hover .gallery-thumb-bg{transform:scale(1.06)}
+.gallery-add-label{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:.4rem;height:100%;font-family:var(--mono);font-size:.44rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(240,236,228,.18);text-align:center;padding:.5rem}
+
+/* Nota de imágenes */
+.gallery-note{font-family:var(--mono);font-size:.55rem;color:rgba(240,236,228,.2);line-height:1.65;margin-top:1.2rem;padding:1rem;border:1px solid rgba(240,236,228,.07);background:rgba(240,236,228,.02)}
+.gallery-note strong{color:rgba(240,236,228,.5);font-weight:400}
+
+/* Nav proyectos dentro del detalle */
+.detail-nav{display:flex;justify-content:space-between;align-items:center;padding:2rem 3rem;border-top:1px solid rgba(240,236,228,.06);margin-top:2rem}
+.detail-nav-btn{font-family:var(--mono);font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:transparent;border:1px solid rgba(240,236,228,.1);padding:.7rem 1.4rem;cursor:none;transition:all .25s;display:flex;align-items:center;gap:.6rem}
+.detail-nav-btn:hover{border-color:var(--red);color:var(--white)}
+.detail-nav-back{font-family:var(--mono);font-size:.5rem;letter-spacing:.12em;text-transform:uppercase;color:var(--red);cursor:none;background:transparent;border:none;display:flex;align-items:center;gap:.5rem}
+.detail-nav-back:hover{color:var(--white)}
+
+/* ABOUT */
+#about{min-height:100vh;display:grid;grid-template-columns:1fr 1fr}
+.about-l{position:relative;overflow:hidden;background:var(--gray2);display:flex;flex-direction:column;justify-content:flex-end;padding:5rem 4rem}
+.about-wm{position:absolute;right:-3rem;top:50%;transform:translateY(-50%);font-family:var(--syne);font-size:20rem;font-weight:800;color:rgba(193,58,36,.04);line-height:1;pointer-events:none;letter-spacing:-.04em}
+.about-brand{position:relative;z-index:2}
+.brand-aie{font-family:var(--syne);font-size:5rem;font-weight:800;letter-spacing:-.03em;line-height:.9;color:var(--white)}
+.brand-aie span{color:var(--red)}
+.brand-full{font-family:var(--mono);font-size:.55rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-top:.8rem;display:block}
+.brand-line{width:40px;height:2px;background:var(--red);margin:1.5rem 0}
+.ac-item{display:flex;align-items:center;gap:.8rem;padding:.62rem 0;border-bottom:1px solid rgba(240,236,228,.05);font-family:var(--mono);font-size:.62rem;letter-spacing:.04em;color:var(--muted)}
+.ac-item a{color:var(--muted);text-decoration:none;transition:color .25s}
+.ac-item a:hover{color:var(--white)}
+.ac-dot{width:3px;height:3px;border-radius:50%;background:var(--red);flex-shrink:0}
+.about-r{background:var(--black);display:flex;flex-direction:column;justify-content:center;padding:5rem 4rem}
+.about-lbl{font-family:var(--mono);font-size:.5rem;letter-spacing:.2em;text-transform:uppercase;color:var(--red);margin-bottom:1.4rem}
+.about-bio{font-family:var(--syne);font-size:clamp(.92rem,1.6vw,1.3rem);font-weight:400;line-height:1.65;color:rgba(240,236,228,.78);letter-spacing:-.01em;margin-bottom:2.2rem}
+.about-bio strong{color:var(--white);font-weight:600}
+.about-bio em{font-family:var(--serif);font-style:italic;color:rgba(240,236,228,.55)}
+.awards-l{border-top:1px solid rgba(240,236,228,.06)}
+.award{display:flex;gap:1.2rem;align-items:flex-start;padding:.9rem 0;border-bottom:1px solid rgba(240,236,228,.04)}
+.aw-ico{color:var(--red);font-size:.62rem;flex-shrink:0;margin-top:.12rem}
+.aw-txt{font-family:var(--mono);font-size:.6rem;color:var(--muted);line-height:1.65}
+.aw-txt strong{color:rgba(240,236,228,.65);font-weight:400}
+.skills-row{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:2rem}
+.skill{font-family:var(--mono);font-size:.46rem;letter-spacing:.1em;text-transform:uppercase;border:1px solid rgba(240,236,228,.08);color:var(--muted);padding:.24rem .6rem;transition:all .25s}
+.skill:hover{border-color:var(--red);color:var(--white)}
+
+/* EXPERIENCE */
+#experience{padding:8rem 3rem;background:var(--gray)}
+.exp-head{margin-bottom:5rem}
+.exp-lbl{font-family:var(--mono);font-size:.5rem;letter-spacing:.2em;text-transform:uppercase;color:var(--red);margin-bottom:.7rem}
+.exp-ttl{font-family:var(--syne);font-size:clamp(1.8rem,3.5vw,3.2rem);font-weight:700;letter-spacing:-.02em;line-height:1}
+.exp-ttl em{font-family:var(--serif);font-style:italic;font-weight:400;color:var(--muted)}
+.exp-item{display:grid;grid-template-columns:190px 1fr auto;gap:2.5rem;padding:2.3rem 0;border-bottom:1px solid rgba(240,236,228,.05);transition:padding-left .3s;align-items:start}
+.exp-item:first-of-type{border-top:1px solid rgba(240,236,228,.05)}
+.exp-item:hover{padding-left:.8rem}
+.exp-date{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;color:var(--red);margin-bottom:.22rem}
+.exp-co{font-family:var(--mono);font-size:.55rem;color:rgba(240,236,228,.25);letter-spacing:.05em}
+.exp-loc{font-family:var(--mono);font-size:.5rem;color:rgba(240,236,228,.14);margin-top:.18rem}
+.exp-role{font-family:var(--syne);font-size:clamp(.88rem,1.6vw,1.3rem);font-weight:600;letter-spacing:-.01em;margin-bottom:.8rem;color:var(--white)}
+.exp-role em{font-family:var(--serif);font-style:italic;font-weight:400;color:rgba(240,236,228,.5)}
+.exp-ul{list-style:none;display:flex;flex-direction:column;gap:.3rem}
+.exp-ul li{font-family:var(--mono);font-size:.6rem;color:var(--muted);display:flex;gap:.7rem;line-height:1.6}
+.exp-ul li::before{content:'→';color:var(--red);flex-shrink:0}
+.exp-tags{display:flex;flex-wrap:wrap;gap:.35rem;align-self:start;justify-content:flex-end}
+.et{font-family:var(--mono);font-size:.43rem;letter-spacing:.1em;text-transform:uppercase;border:1px solid rgba(193,58,36,.22);color:rgba(193,58,36,.65);padding:.2rem .5rem}
+
+/* SOFTWARE */
+#software{padding:5.5rem 3rem;background:var(--black)}
+.sw-top{margin-bottom:2.5rem}
+.sw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:1px;background:rgba(240,236,228,.04);border:1px solid rgba(240,236,228,.04)}
+.sw{background:var(--black);padding:1.7rem 1rem;text-align:center;transition:background .3s}
+.sw:hover{background:var(--gray)}
+.sw-badge{font-family:var(--mono);font-size:.44rem;letter-spacing:.18em;text-transform:uppercase;color:var(--red);display:block;margin-bottom:.58rem}
+.sw-name{font-family:var(--syne);font-size:.85rem;font-weight:600;color:rgba(240,236,228,.58)}
+.sw-sub{font-family:var(--mono);font-size:.48rem;color:rgba(240,236,228,.17);margin-top:.2rem}
+
+/* CONTACT */
+#contact{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;position:relative;overflow:hidden}
+#contact::before{content:'AIE';position:absolute;left:-4rem;bottom:-4rem;font-family:var(--syne);font-size:26rem;font-weight:800;color:rgba(193,58,36,.04);line-height:1;pointer-events:none}
+.ct-l{background:var(--white);display:flex;flex-direction:column;justify-content:center;padding:6rem 4rem;position:relative;z-index:1}
+.ct-lbl{font-family:var(--mono);font-size:.5rem;letter-spacing:.2em;text-transform:uppercase;color:var(--red);margin-bottom:1.2rem}
+.ct-big{font-family:var(--syne);font-size:clamp(2rem,5vw,4.8rem);font-weight:800;line-height:.95;letter-spacing:-.03em;color:var(--black);margin-bottom:1.8rem}
+.ct-big em{font-family:var(--serif);font-style:italic;font-weight:400;color:var(--red)}
+.ct-sub{font-family:var(--mono);font-size:.62rem;color:rgba(8,8,7,.42);line-height:1.8;max-width:360px;margin-bottom:2.2rem}
+.ct-link{display:flex;align-items:center;gap:.9rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.05em;color:rgba(8,8,7,.42);text-decoration:none;padding:.82rem 0;border-bottom:1px solid rgba(8,8,7,.07);transition:color .25s}
+.ct-link:hover{color:var(--red)}
+.ct-ico{width:26px;height:26px;border:1px solid rgba(8,8,7,.14);display:flex;align-items:center;justify-content:center;font-size:.58rem;flex-shrink:0;transition:border-color .25s}
+.ct-link:hover .ct-ico{border-color:var(--red)}
+.ct-r{background:var(--black);display:flex;flex-direction:column;justify-content:center;padding:6rem 4rem}
+.f-lbl{font-family:var(--mono);font-size:.48rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(240,236,228,.22);display:block;margin-bottom:.4rem}
+.f-inp{width:100%;background:transparent;border:none;border-bottom:1px solid rgba(240,236,228,.09);color:var(--white);font-family:var(--syne);font-size:.95rem;font-weight:400;padding:.58rem 0;outline:none;margin-bottom:1.3rem;transition:border-color .3s}
+.f-inp:focus{border-bottom-color:var(--red)}
+.f-inp::placeholder{color:rgba(240,236,228,.09)}
+textarea.f-inp{resize:none;height:85px}
+.f-btn{font-family:var(--mono);font-size:.56rem;letter-spacing:.15em;text-transform:uppercase;background:var(--red);color:var(--black);border:none;padding:.85rem 2rem;cursor:none;transition:background .3s;display:inline-block;text-decoration:none;margin-top:.5rem}
+.f-btn:hover{background:var(--red2)}
+
+/* FOOTER */
+footer{background:var(--black);padding:1.8rem 3rem;display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(240,236,228,.04)}
+.f-copy{font-family:var(--mono);font-size:.52rem;letter-spacing:.1em;color:rgba(240,236,228,.14)}
+.f-brand{font-family:var(--syne);font-size:.88rem;font-weight:800;color:rgba(240,236,228,.14)}
+.f-brand span{color:rgba(193,58,36,.35)}
+
+/* ANIMATIONS */
+@keyframes fadeIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.rev{opacity:0;transform:translateY(20px);transition:opacity .65s ease,transform .65s ease}
+.rev.in{opacity:1;transform:translateY(0)}
+.rev-l{opacity:0;transform:translateX(-20px);transition:opacity .65s ease,transform .65s ease}
+.rev-l.in{opacity:1;transform:translateX(0)}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  nav{padding:1.3rem 1.5rem}.nav-links{display:none}
+  .aie-letter{font-size:clamp(3.5rem,14vw,5.5rem)}
+  .stats-bar{flex-wrap:wrap}.stat-item{min-width:50%}
+  .proj-intro{padding:4rem 1.5rem 0;grid-template-columns:1fr}
+  .cat-tabs{margin:2rem 1.5rem 0;top:65px}
+  .cat-header{padding:2.5rem 1.5rem 2rem;grid-template-columns:1fr}.cat-header-num{display:none}
+  .pgrid2,.pgrid3{grid-template-columns:1fr}.pgrid2 .pc,.pgrid3 .pc{height:52vh}.pc{height:65vh}
+  .uni-grid{grid-template-columns:1fr}.uni-card,.uni-card.featured{grid-column:unset;grid-template-columns:1fr}
+  .uni-img{height:200px}
+  .int-grid{grid-template-columns:1fr}.int-card.span2{grid-column:unset}
+  #about{grid-template-columns:1fr}.about-l,.about-r{padding:4rem 1.5rem}
+  #experience{padding:5rem 1.5rem}.exp-item{grid-template-columns:1fr;gap:.6rem}.exp-tags{justify-content:flex-start}
+  #software{padding:5rem 1.5rem}
+  #contact{grid-template-columns:1fr}.ct-l,.ct-r{padding:4rem 1.5rem}
+  footer{padding:1.5rem;flex-direction:column;gap:.8rem;text-align:center}
+  .detail-body{grid-template-columns:1fr;gap:3rem;padding:2.5rem 1.5rem 4rem}
+  .detail-close{right:1.5rem}
+  .detail-hero-content{padding:2rem 1.5rem}
+  .detail-nav{padding:1.5rem;flex-direction:column;gap:1rem}
+}
+</style>
+</head>
+<body>
+
+<div id="cur"></div>
+<div id="cur-r"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#" class="nav-brand">
+    <div class="nav-aie">AI<span>E</span></div>
+    <div class="nav-sub">Arquitectura</div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#projects">Proyectos</a></li>
+    <li><a href="#about">Estudio</a></li>
+    <li><a href="#experience">Experiencia</a></li>
+    <li><a href="#software">Software</a></li>
+    <li><a href="#contact">Contacto</a></li>
+  </ul>
+  <a href="#contact" class="nav-cta">Hablemos →</a>
+</nav>
+
+<!-- ═══ PROJECT DETAIL OVERLAY ═══ -->
+<div id="proj-detail">
+  <button class="detail-close" onclick="closeDetail()" aria-label="Cerrar">
+    <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+
+  <!-- Hero del detalle -->
+  <div class="detail-hero" id="detail-hero">
+    <div class="detail-hero-bg" id="detail-hero-bg">
+      <svg id="detail-hero-svg" width="600" height="400" viewBox="0 0 600 400" fill="none"></svg>
+    </div>
+    <div class="detail-hero-gl"></div>
+    <div class="detail-hero-grad"></div>
+    <div class="detail-hero-content">
+      <div class="detail-breadcrumb">
+        <span id="detail-breadcrumb-cat">Proyectos Arquitectónicos</span>
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        <span id="detail-breadcrumb-name">Proyecto</span>
+      </div>
+      <h1 class="detail-title" id="detail-title">Proyecto</h1>
+      <div class="detail-tags-row" id="detail-tags"></div>
+    </div>
+  </div>
+
+  <!-- Body del detalle -->
+  <div class="detail-body">
+    <!-- Columna izquierda: descripción + ficha + equipo -->
+    <div class="detail-desc-col">
+      <div class="detail-section-label">Descripción del proyecto</div>
+      <div class="detail-desc-text" id="detail-desc"></div>
+
+      <div class="detail-section-label">Ficha técnica</div>
+      <div class="detail-ficha" id="detail-ficha"></div>
+
+      <div class="detail-team" id="detail-team-section">
+        <div class="detail-section-label">Equipo del proyecto</div>
+        <div class="team-grid" id="detail-team"></div>
+      </div>
+    </div>
+
+    <!-- Columna derecha: galería -->
+    <div class="detail-gallery-col">
+      <div class="detail-section-label">Galería</div>
+      <div class="gallery-main" id="detail-gallery-main">
+        <div class="gallery-main-bg" id="detail-gallery-main-bg">
+          <svg id="detail-gallery-svg" width="380" height="280" viewBox="0 0 380 280" fill="none"></svg>
+        </div>
+      </div>
+      <div class="gallery-thumbs" id="detail-gallery-thumbs"></div>
+      <div class="gallery-note">
+        <strong>Agrega tus renders aquí.</strong> Reemplaza los fondos con imágenes reales de tus proyectos. Cada tarjeta acepta una imagen JPG o PNG. Contáctame y lo actualizamos juntos en minutos.
+      </div>
+    </div>
+  </div>
+
+  <!-- Nav proyectos -->
+  <div class="detail-nav">
+    <button class="detail-nav-btn" id="detail-prev" onclick="navProject(-1)">← Proyecto anterior</button>
+    <button class="detail-nav-back" onclick="closeDetail()">↑ Volver a todos los proyectos</button>
+    <button class="detail-nav-btn" id="detail-next" onclick="navProject(1)">Proyecto siguiente →</button>
+  </div>
+</div>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-noise"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="aie-logo-hero">
+      <span class="aie-letter">A</span><span class="aie-letter red">I</span>
+      <div class="aie-divider"></div>
+      <div class="aie-right"><div class="aie-studio">Arquitectura</div><div class="aie-arq">Estudio de diseño · Cali, Colombia</div></div>
+      <span class="aie-letter" style="margin-left:1.2rem">E</span>
+    </div>
+    <p class="hero-tagline">Espacios que <em>transforman</em> la forma de vivir</p>
+
+    <div class="hero-cta-row">
+      <a href="#projects" class="btn-r">Ver proyectos</a>
+      <a href="#contact" class="btn-o">Trabajemos juntos</a>
+    </div>
+  </div>
+  <div class="hero-scroll"><div class="scroll-bar"></div><span>Scroll</span></div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat-item"><div class="stat-n">6+</div><div class="stat-l">Años de experiencia</div></div>
+  <div class="stat-item"><div class="stat-n">20+</div><div class="stat-l">Proyectos realizados</div></div>
+  <div class="stat-item"><div class="stat-n">9</div><div class="stat-l">Softwares dominados</div></div>
+  <div class="stat-item"><div class="stat-n">2</div><div class="stat-l">Países</div></div>
+  <div class="stat-item"><div class="stat-n">3</div><div class="stat-l">Reconocimientos</div></div>
+</div>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="proj-intro rev">
+    <div><div class="pi-label">Trabajo selecto</div><h2 class="pi-title">Tres <em>disciplinas</em>,<br>un estudio</h2></div>
+    <div class="pi-count">20</div>
+  </div>
+
+  <div class="cat-tabs">
+    <button class="cat-btn active" data-cat="arq" onclick="switchCat('arq',this)">
+      <div class="cat-num">01</div><div class="cat-label">Proyectos Arquitectónicos</div><div class="cat-count">9 proyectos</div>
+    </button>
+    <button class="cat-btn" data-cat="uni" onclick="switchCat('uni',this)">
+      <div class="cat-num">02</div><div class="cat-label">Proyectos Universitarios</div><div class="cat-count">5 proyectos</div>
+    </button>
+    <button class="cat-btn" data-cat="int" onclick="switchCat('int',this)">
+      <div class="cat-num">03</div><div class="cat-label">Proyectos de Interiorismo</div><div class="cat-count">6 proyectos</div>
+    </button>
+  </div>
+
+  <!-- PANEL ARQ -->
+  <div class="cat-panel active" id="panel-arq">
+    <div class="cat-header"><div class="cat-header-num">01</div><div><div class="cat-header-label" style="color:var(--cat-arq)">Proyectos Arquitectónicos</div><h3 class="cat-header-title">Diseño que <em style="color:var(--cat-arq)">define ciudades</em></h3><p class="cat-header-desc">Proyectos residenciales y comerciales en Colombia y España. Haz clic en cualquier proyecto para ver la descripción completa, galería e integrantes.</p></div></div>
+
+    <div class="pc rev" onclick="openProject('farallones-tower')">
+      <div class="pv"><div class="p-bg bg1"><div class="p-gl"></div><div class="p-arch"><svg width="320" height="420" viewBox="0 0 320 420" fill="none"><rect x="110" y="20" width="100" height="380" stroke="#c13a24" stroke-width="0.8"/><rect x="127" y="38" width="28" height="22" stroke="#c13a24" stroke-width="0.4"/><rect x="165" y="38" width="28" height="22" stroke="#c13a24" stroke-width="0.4"/><rect x="127" y="74" width="28" height="22" stroke="#c13a24" stroke-width="0.4"/><rect x="165" y="74" width="28" height="22" stroke="#c13a24" stroke-width="0.4"/><rect x="127" y="110" width="28" height="22" stroke="#c13a24" stroke-width="0.4"/><rect x="165" y="110" width="28" height="22" stroke="#c13a24" stroke-width="0.4"/><rect x="127" y="146" width="28" height="22" stroke="#c13a24" stroke-width="0.4"/><rect x="165" y="146" width="28" height="22" stroke="#c13a24" stroke-width="0.4"/><rect x="127" y="182" width="28" height="22" stroke="#c13a24" stroke-width="0.4"/><rect x="165" y="182" width="28" height="22" stroke="#c13a24" stroke-width="0.4"/><rect x="137" y="305" width="46" height="115" stroke="#c13a24" stroke-width="0.4"/><line x1="60" y1="400" x2="260" y2="400" stroke="#c13a24" stroke-width="0.6"/></svg></div></div><div class="p-grad"></div><div class="p-grad-l"></div></div>
+      <div class="p-info"><div><div class="p-num">01 — Grupo Iconic · 2025</div><h3 class="p-name">Farallones Tower <em>ET02</em></h3><div class="p-meta">Residencial · Cali, Colombia · 29 pisos</div><div class="p-tag">Diseño biofílico</div></div><div><p class="p-desc-h">Torre de 29 pisos con fachada orgánica, franjas curvas de madera y vegetación por nivel.</p><button class="p-ver-btn">Ver proyecto →</button></div></div>
+    </div>
+
+    <div class="pgrid2">
+      <div class="pc rev" onclick="openProject('vibe-suiza')"><div class="pv"><div class="p-bg bg2"><div class="p-gl"></div><div class="p-arch"><svg width="180" height="220" viewBox="0 0 180 220" fill="none"><rect x="30" y="12" width="120" height="196" stroke="#c13a24" stroke-width="0.8"/><rect x="48" y="28" width="35" height="20" stroke="#c13a24" stroke-width="0.4"/><rect x="97" y="28" width="35" height="20" stroke="#c13a24" stroke-width="0.4"/><rect x="48" y="60" width="35" height="20" stroke="#c13a24" stroke-width="0.4"/><rect x="97" y="60" width="35" height="20" stroke="#c13a24" stroke-width="0.4"/><rect x="58" y="128" width="64" height="80" stroke="#c13a24" stroke-width="0.4"/></svg></div></div><div class="p-grad"></div></div><div class="p-info"><div><div class="p-num">02 — 2025</div><h3 class="p-name" style="font-size:clamp(1.4rem,2.8vw,2.6rem)">Vibe <em>Suiza</em> Tower</h3><div class="p-meta">Grupo Iconic · 10 pisos</div></div><div><p class="p-desc-h">Jardines verticales y celosías de madera en La Suiza.</p><button class="p-ver-btn">Ver proyecto →</button></div></div></div>
+      <div class="pc rev" onclick="openProject('hotel-sevilla')"><div class="pv"><div class="p-bg bg7"><div class="p-gl"></div><div class="p-arch"><svg width="180" height="220" viewBox="0 0 180 220" fill="none"><rect x="25" y="18" width="130" height="190" stroke="#c13a24" stroke-width="0.8"/><rect x="40" y="35" width="42" height="28" stroke="#c13a24" stroke-width="0.4"/><rect x="98" y="35" width="42" height="28" stroke="#c13a24" stroke-width="0.4"/><rect x="40" y="76" width="42" height="28" stroke="#c13a24" stroke-width="0.4"/><rect x="98" y="76" width="42" height="28" stroke="#c13a24" stroke-width="0.4"/><rect x="55" y="120" width="70" height="88" stroke="#c13a24" stroke-width="0.4"/></svg></div></div><div class="p-grad"></div></div><div class="p-info"><div><div class="p-num">03 — Concurso · Sevilla 2024</div><h3 class="p-name" style="font-size:clamp(1.4rem,2.8vw,2.6rem)">Hotel <em>Sevilla</em></h3><div class="p-meta">U+G Arquitectos · España</div><div class="p-tag">✦ Concurso</div></div><div><p class="p-desc-h">Patio mediterráneo, jardín interior y azotea verde.</p><button class="p-ver-btn">Ver proyecto →</button></div></div></div>
+    </div>
+
+    <div class="pc rev" style="height:72vh" onclick="openProject('farallones-125')"><div class="pv"><div class="p-bg bg6"><div class="p-gl"></div><div class="p-arch"><svg width="300" height="340" viewBox="0 0 300 340" fill="none"><rect x="100" y="10" width="100" height="320" stroke="#c13a24" stroke-width="0.8"/><rect x="120" y="28" width="60" height="280" stroke="#c13a24" stroke-width="0.5"/><line x1="40" y1="330" x2="260" y2="330" stroke="#c13a24" stroke-width="0.6"/></svg></div></div><div class="p-grad"></div><div class="p-grad-l"></div></div><div class="p-info"><div><div class="p-num">04 — 2025</div><h3 class="p-name">Farallones <em>125</em></h3><div class="p-meta">Grupo Iconic · 15 niveles · Cali</div><div class="p-tag">Celosía de madera</div></div><div><p class="p-desc-h">15 niveles con muro central en celosía y balcones ajardinados piso a piso.</p><button class="p-ver-btn">Ver proyecto →</button></div></div></div>
+
+    <div class="pgrid3">
+      <div class="pc rev" onclick="openProject('farallones-mall')"><div class="pv"><div class="p-bg bg3"><div class="p-gl"></div></div><div class="p-grad"></div></div><div class="p-info"><div><div class="p-num">05 — 2025</div><h3 class="p-name" style="font-size:1.4rem">Farallones <em>Mall</em></h3><div class="p-meta">Uso mixto · Iconic</div></div><div><button class="p-ver-btn">Ver →</button></div></div></div>
+      <div class="pc rev" onclick="openProject('casa-gaudi')"><div class="pv"><div class="p-bg bg4"><div class="p-gl"></div></div><div class="p-grad"></div></div><div class="p-info"><div><div class="p-num">06 — 2025</div><h3 class="p-name" style="font-size:1.4rem">Casa <em>Gaudí</em></h3><div class="p-meta">Residencial · Lujo</div></div><div><button class="p-ver-btn">Ver →</button></div></div></div>
+      <div class="pc rev" onclick="openProject('dermalaser')"><div class="pv"><div class="p-bg bg5"><div class="p-gl"></div></div><div class="p-grad"></div></div><div class="p-info"><div><div class="p-num">07 — Construido 2020</div><h3 class="p-name" style="font-size:1.3rem">Dermalaser <em>C.Jardín</em></h3><div class="p-meta">Comercial · Cali</div><div class="p-tag">✦ Construido</div></div><div><button class="p-ver-btn">Ver →</button></div></div></div>
+    </div>
+  </div>
+
+  <!-- PANEL UNI -->
+  <div class="cat-panel" id="panel-uni">
+    <div class="cat-header"><div class="cat-header-num">02</div><div><div class="cat-header-label" style="color:var(--cat-uni)">Proyectos Universitarios</div><h3 class="cat-header-title">Donde nació la <em style="color:var(--cat-uni)">visión</em></h3><p class="cat-header-desc">Concursos ganados y reconocimientos nacionales. Haz clic para ver cada proyecto en detalle.</p></div></div>
+    <div class="uni-grid">
+      <div class="uni-card featured" onclick="openProject('vis-vip')">
+        <div class="uni-img bgu1" style="height:auto;min-height:240px"><div class="uni-img-gl"></div><svg width="280" height="140" viewBox="0 0 280 140" fill="none"><rect x="14" y="22" width="56" height="108" stroke="#4a7c6f" stroke-width="0.8"/><rect x="78" y="10" width="56" height="120" stroke="#4a7c6f" stroke-width="0.8"/><rect x="142" y="22" width="56" height="108" stroke="#4a7c6f" stroke-width="0.8"/><rect x="206" y="34" width="50" height="96" stroke="#4a7c6f" stroke-width="0.8"/><line x1="5" y1="130" x2="262" y2="130" stroke="#4a7c6f" stroke-width="0.6"/></svg></div>
+        <div class="uni-content"><div><div class="uni-tag">7° Semestre · Concurso</div><h3 class="uni-title">Vivienda Colectiva VIS / <em>VIP</em></h3><p class="uni-desc">Prototipo habitacional en madera y guadua colombiana para Santa Rosa de Cabal. Primer puesto en concurso de la Alcaldía.</p><div class="uni-award">✦ 1er Puesto · Simón Vélez</div></div><div><div class="uni-meta">Universidad de San Buenaventura · Cali</div><button class="uni-ver-btn">Ver proyecto completo →</button></div></div>
+      </div>
+      <div class="uni-card" onclick="openProject('corazon-pance')">
+        <div class="uni-img bgu2"><div class="uni-img-gl"></div><svg width="160" height="130" viewBox="0 0 160 130" fill="none"><rect x="8" y="15" width="144" height="100" stroke="#4a7c6f" stroke-width="0.8" stroke-dasharray="4 3"/><circle cx="80" cy="65" r="30" stroke="#4a7c6f" stroke-width="0.6"/><line x1="80" y1="35" x2="80" y2="15" stroke="#4a7c6f" stroke-width="0.4"/><line x1="80" y1="95" x2="80" y2="115" stroke="#4a7c6f" stroke-width="0.4"/><line x1="8" y1="65" x2="50" y2="65" stroke="#4a7c6f" stroke-width="0.4"/><line x1="110" y1="65" x2="152" y2="65" stroke="#4a7c6f" stroke-width="0.4"/></svg></div>
+        <div class="uni-content"><div><div class="uni-tag">8° Semestre · Urbanismo</div><h3 class="uni-title">Corazón <em>de Pance</em></h3><p class="uni-desc">Plan Urbano General para la Comuna 22 de Cali. Movilidad, espacio público y sostenibilidad territorial. Reconocido a nivel nacional.</p><div class="uni-award">✦ Reconocimiento nacional</div></div><div><div class="uni-meta">USB Cali · Arq. Marcela Falla</div><button class="uni-ver-btn">Ver proyecto →</button></div></div>
+      </div>
+      <div class="uni-card" onclick="openProject('salon-bioclimatico')">
+        <div class="uni-img bgu3"><div class="uni-img-gl"></div><svg width="160" height="130" viewBox="0 0 160 130" fill="none"><rect x="10" y="28" width="140" height="90" stroke="#4a7c6f" stroke-width="0.8"/><rect x="24" y="42" width="46" height="64" stroke="#4a7c6f" stroke-width="0.4"/><rect x="82" y="42" width="56" height="36" stroke="#4a7c6f" stroke-width="0.4"/><line x1="10" y1="28" x2="80" y2="8" stroke="#4a7c6f" stroke-width="0.5"/><line x1="150" y1="28" x2="80" y2="8" stroke="#4a7c6f" stroke-width="0.5"/></svg></div>
+        <div class="uni-content"><div><div class="uni-tag">6° Semestre · Bioclimática</div><h3 class="uni-title">Salón <em>Los Libertadores</em></h3><p class="uni-desc">Centro cultural con criterios bioclimáticos en barrio sin espacio público. Ventilación natural y materiales sostenibles.</p></div><div><div class="uni-meta">Universidad de San Buenaventura · Cali</div><button class="uni-ver-btn">Ver proyecto →</button></div></div>
+      </div>
+      <div class="uni-card" onclick="openProject('concurso-alacero')">
+        <div class="uni-img bgu4"><div class="uni-img-gl"></div><svg width="160" height="130" viewBox="0 0 160 130" fill="none"><rect x="14" y="14" width="132" height="100" stroke="#4a7c6f" stroke-width="0.8"/><line x1="52" y1="14" x2="52" y2="114" stroke="#4a7c6f" stroke-width="0.4"/><line x1="108" y1="14" x2="108" y2="114" stroke="#4a7c6f" stroke-width="0.4"/><rect x="24" y="28" width="20" height="72" stroke="#4a7c6f" stroke-width="0.4"/><rect x="64" y="28" width="36" height="72" stroke="#4a7c6f" stroke-width="0.4"/><rect x="118" y="28" width="20" height="72" stroke="#4a7c6f" stroke-width="0.4"/></svg></div>
+        <div class="uni-content"><div><div class="uni-tag">Concurso nacional · Acero</div><h3 class="uni-title">Concurso <em>ALACERO</em></h3><p class="uni-desc">Participación en concurso latinoamericano de arquitectura en acero. Propuesta estructural e innovadora.</p><div class="uni-award">✦ Concurso nacional</div></div><div><div class="uni-meta">Latinoamérica · 2024</div><button class="uni-ver-btn">Ver proyecto →</button></div></div>
+      </div>
+
+      <!-- NUEVO: Residencia para Artistas 5° semestre -->
+      <div class="uni-card featured" onclick="openProject('residencia-artistas')">
+        <div class="uni-img bgu1" style="height:auto;min-height:240px">
+          <div class="uni-img-gl"></div>
+          <svg width="300" height="160" viewBox="0 0 300 160" fill="none">
+            <rect x="20" y="20" width="70" height="130" stroke="#4a7c6f" stroke-width="0.8"/>
+            <rect x="115" y="35" width="70" height="115" stroke="#4a7c6f" stroke-width="0.8"/>
+            <rect x="210" y="50" width="70" height="100" stroke="#4a7c6f" stroke-width="0.8"/>
+            <rect x="38" y="38" width="34" height="28" stroke="#4a7c6f" stroke-width="0.4" stroke-dasharray="2 2"/>
+            <rect x="133" y="55" width="34" height="28" stroke="#4a7c6f" stroke-width="0.4" stroke-dasharray="2 2"/>
+            <rect x="228" y="70" width="34" height="28" stroke="#4a7c6f" stroke-width="0.4" stroke-dasharray="2 2"/>
+            <line x1="20" y1="90" x2="280" y2="90" stroke="#4a7c6f" stroke-width="0.5" stroke-dasharray="4 3"/>
+            <line x1="90" y1="20" x2="115" y2="35" stroke="#4a7c6f" stroke-width="0.4"/>
+            <line x1="185" y1="35" x2="210" y2="50" stroke="#4a7c6f" stroke-width="0.4"/>
+            <line x1="20" y1="150" x2="280" y2="150" stroke="#4a7c6f" stroke-width="0.6"/>
+          </svg>
+        </div>
+        <div class="uni-content">
+          <div>
+            <div class="uni-tag">5° Semestre · Vivienda colectiva</div>
+            <h3 class="uni-title">Residencia para <em>Artistas</em></h3>
+            <p class="uni-desc">Sistema habitable que integra creación, encuentro y vida cotidiana. Tres cuerpos escalonados reinterpretan la lógica de la casa de la Queja con patios y vacíos como núcleos de luz y relación colectiva.</p>
+          </div>
+          <div>
+            <div class="uni-meta">Universidad de San Buenaventura · Cali</div>
+            <button class="uni-ver-btn">Ver proyecto completo →</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PANEL INT -->
+  <div class="cat-panel" id="panel-int">
+    <div class="cat-header"><div class="cat-header-num">03</div><div><div class="cat-header-label" style="color:var(--cat-int)">Proyectos de Interiorismo</div><h3 class="cat-header-title">El espacio <em style="color:var(--cat-int)">desde adentro</em></h3><p class="cat-header-desc">Diseño interior residencial y corporativo en Colombia y España. Haz clic para ver cada proyecto en detalle.</p></div></div>
+    <div class="int-grid">
+      <div class="int-card span2" onclick="openProject('naples-holguines')">
+        <div class="int-visual"><div class="int-vis-bg bgi1"><div class="int-vis-gl"></div><svg width="340" height="160" viewBox="0 0 340 160" fill="none"><rect x="12" y="18" width="316" height="124" stroke="#7a6244" stroke-width="0.8"/><rect x="24" y="30" width="80" height="100" stroke="#7a6244" stroke-width="0.4"/><rect x="116" y="30" width="60" height="58" stroke="#7a6244" stroke-width="0.4"/><rect x="188" y="30" width="50" height="42" stroke="#7a6244" stroke-width="0.4"/><rect x="252" y="30" width="64" height="100" stroke="#7a6244" stroke-width="0.4"/><rect x="116" y="98" width="126" height="32" stroke="#7a6244" stroke-width="0.4"/></svg></div><div class="int-vis-grad"></div></div>
+        <div class="int-info"><div class="int-cat-tag">Corporativo · 2024</div><h3 class="int-title">Oficina Naples <em>Holguines</em></h3><p class="int-desc">14 espacios diseñados — exclusa, sala de espera, gerencia, sala de juntas, cocineta y más. Ergonomía y luz natural hacia los Farallones de Cali.</p><div class="int-meta">AI Arquitectos · Naples Prime SAS · Cali, Colombia</div><button class="int-ver-btn">Ver proyecto completo →</button></div>
+      </div>
+      <div class="int-card" onclick="openProject('naples-torre')">
+        <div class="int-visual"><div class="int-vis-bg bgi2"><div class="int-vis-gl"></div><svg width="180" height="110" viewBox="0 0 180 110" fill="none"><rect x="10" y="12" width="160" height="86" stroke="#7a6244" stroke-width="0.8"/><rect x="22" y="24" width="56" height="62" stroke="#7a6244" stroke-width="0.4"/><rect x="90" y="24" width="40" height="38" stroke="#7a6244" stroke-width="0.4"/><rect x="142" y="24" width="18" height="62" stroke="#7a6244" stroke-width="0.4"/></svg></div><div class="int-vis-grad"></div></div>
+        <div class="int-info"><div class="int-cat-tag">Corporativo · 2024</div><h3 class="int-title">Oficina Naples <em>Torre de Cali</em></h3><p class="int-desc">Segunda sede Naples Prime. Optimización ergonómica en Torre de Cali.</p><div class="int-meta">AI Arquitectos · Torre de Cali</div><button class="int-ver-btn">Ver proyecto →</button></div>
+      </div>
+      <div class="int-card" onclick="openProject('apartamento-borbolla')">
+        <div class="int-visual"><div class="int-vis-bg bgi3"><div class="int-vis-gl"></div><svg width="180" height="110" viewBox="0 0 180 110" fill="none"><rect x="10" y="12" width="160" height="86" stroke="#7a6244" stroke-width="0.8"/><rect x="22" y="24" width="64" height="40" stroke="#7a6244" stroke-width="0.4"/><rect x="22" y="72" width="64" height="18" stroke="#7a6244" stroke-width="0.4"/><rect x="100" y="24" width="60" height="66" stroke="#7a6244" stroke-width="0.4"/></svg></div><div class="int-vis-grad"></div></div>
+        <div class="int-info"><div class="int-cat-tag">Residencial · Sevilla 2024</div><h3 class="int-title">Apartamento <em>Borbolla</em></h3><p class="int-desc">Interiorismo residencial en Sevilla. Materiales cálidos y paleta cromática neutra.</p><div class="int-meta">U+G Arquitectos · Sevilla, España</div><button class="int-ver-btn">Ver proyecto →</button></div>
+      </div>
+      <div class="int-card" onclick="openProject('apartamento-enramadilla')">
+        <div class="int-visual"><div class="int-vis-bg bgi4"><div class="int-vis-gl"></div><svg width="180" height="110" viewBox="0 0 180 110" fill="none"><rect x="10" y="12" width="160" height="86" stroke="#7a6244" stroke-width="0.8"/><rect x="22" y="24" width="80" height="36" stroke="#7a6244" stroke-width="0.4"/><rect x="22" y="68" width="80" height="22" stroke="#7a6244" stroke-width="0.4"/><rect x="114" y="24" width="46" height="66" stroke="#7a6244" stroke-width="0.4"/></svg></div><div class="int-vis-grad"></div></div>
+        <div class="int-info"><div class="int-cat-tag">Residencial · Sevilla 2024</div><h3 class="int-title">Apartamento <em>Enramadilla</em></h3><p class="int-desc">Máximo aprovechamiento del espacio con atmósfera luminosa y contemporánea.</p><div class="int-meta">U+G Arquitectos · Sevilla, España</div><button class="int-ver-btn">Ver proyecto →</button></div>
+      </div>
+      <div class="int-card" onclick="openProject('remodelacion-apt')">
+        <div class="int-visual"><div class="int-vis-bg bgi5"><div class="int-vis-gl"></div></div><div class="int-vis-grad"></div></div>
+        <div class="int-info"><div class="int-cat-tag">Residencial · 2022</div><h3 class="int-title">Remodelación <em>Apartamento</em></h3><p class="int-desc">Diseño para usuario joven. Espacios abiertos, versátiles y contemporáneos.</p><div class="int-meta">Ing. David Fonseca · Cali</div><button class="int-ver-btn">Ver proyecto →</button></div>
+      </div>
+      <div class="int-card" onclick="openProject('gerencia-unicentro')">
+        <div class="int-visual"><div class="int-vis-bg bgi6"><div class="int-vis-gl"></div></div><div class="int-vis-grad"></div></div>
+        <div class="int-info"><div class="int-cat-tag">Corporativo · 2023</div><h3 class="int-title">Gerencia <em>Unicentro</em></h3><p class="int-desc">Oficinas administrativas CC Unicentro. Diseño contemporáneo que refleja la identidad del centro comercial.</p><div class="int-meta">AT Arquitectos · Cali, Colombia</div><button class="int-ver-btn">Ver proyecto →</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-l rev-l">
+    <div class="about-wm">AIE</div>
+    <div class="about-brand">
+      <div class="brand-aie">AI<span>E</span></div>
+      <span class="brand-full">Álvaro Ibarra Escobar · Arquitecto</span>
+      <div class="brand-line"></div>
+    </div>
+    <div>
+      <div class="ac-item"><div class="ac-dot"></div><a href="/cdn-cgi/l/email-protection#f7969b819685989e9596858596c0c6c2b7909a969e9bd994989a"><span class="__cf_email__" data-cfemail="a4c5c8d2c5d6cbcdc6c5d6d6c5939591e4c3c9c5cdc88ac7cbc9">[email&#160;protected]</span></a></div>
+      <div class="ac-item"><div class="ac-dot"></div><a href="tel:+573184803482">(+57) 318 480 3482</a></div>
+      <div class="ac-item"><div class="ac-dot"></div>Cali, Colombia</div>
+      <div class="ac-item"><div class="ac-dot"></div>Español nativo · Inglés B1</div>
+    </div>
+  </div>
+  <div class="about-r rev">
+    <div class="about-lbl">Sobre AIE Arquitectura</div>
+    <p class="about-bio">AIE Arquitectura es el estudio de <strong>Álvaro Ibarra Escobar</strong>, arquitecto egresado de la <strong>Universidad de San Buenaventura</strong> con más de 6 años de experiencia en proyectos residenciales, comerciales y de interiorismo en <em>Colombia y España</em>. Especialistas en diseño integral, BIM y visualización fotorrealista con inteligencia artificial.</p>
+    <div class="awards-l">
+      <div class="award"><div class="aw-ico">✦</div><div class="aw-txt"><strong>1er Puesto</strong> — Concurso Alcaldía Santa Rosa de Cabal. Vivienda VIS/VIP en madera y guadua. Reconocido por el Arq. Simón Vélez.</div></div>
+      <div class="award"><div class="aw-ico">✦</div><div class="aw-txt"><strong>Reconocimiento nacional</strong> — Plan Urbano Corazón de Pance, Comuna 22 de Cali. Arq. Marcela Falla.</div></div>
+      <div class="award"><div class="aw-ico">✦</div><div class="aw-txt"><strong>Año internacional</strong> en Universidad de Sevilla + prácticas en U+G Arquitectos, España (2023–2024).</div></div>
+    </div>
+    <div class="skills-row">
+      <span class="skill">Arquitectura residencial</span><span class="skill">Arquitectura comercial</span><span class="skill">Interiorismo</span><span class="skill">BIM</span><span class="skill">Renders fotorrealistas</span><span class="skill">Vivienda vertical</span><span class="skill">IA aplicada</span>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience">
+  <div class="exp-head"><div class="exp-lbl">Trayectoria</div><h2 class="exp-ttl">Experiencia <em>profesional</em></h2></div>
+  <div class="exp-item rev"><div><div class="exp-date">Nov 2024 — Hoy</div><div class="exp-co">Grupo Iconic</div><div class="exp-loc">Cali, Colombia</div></div><div><h3 class="exp-role">Architectural Designer / <em>Arquitecto Junior</em></h3><ul class="exp-ul"><li>Farallones Tower ET02 (29p), Farallones 125 (15p), Vibe Suiza Tower (10p) y Farallones Mall.</li><li>Planos con AutoCAD y Revit · Renders fotorrealistas para marketing inmobiliario.</li></ul></div><div class="exp-tags"><span class="et">Revit</span><span class="et">AutoCAD</span><span class="et">D5 Render</span><span class="et">BIM</span></div></div>
+  <div class="exp-item rev"><div><div class="exp-date">Ene 2020 — Hoy</div><div class="exp-co">AT Arquitectos</div><div class="exp-loc">Freelance</div></div><div><h3 class="exp-role">Architectural <em>Visualization Specialist</em></h3><ul class="exp-ul"><li>Casa Altos de Dapá · Casa Mercedes · Dermalaser Ciudad Jardín (construido) · Gerencia Unicentro.</li><li>Renders fotorrealistas para marketing y presentaciones comerciales.</li></ul></div><div class="exp-tags"><span class="et">3ds Max</span><span class="et">V-Ray</span><span class="et">Lumion</span></div></div>
+  <div class="exp-item rev"><div><div class="exp-date">Feb – Ago 2024</div><div class="exp-co">U+G Arquitectos</div><div class="exp-loc">Sevilla, España</div></div><div><h3 class="exp-role">Architectural <em>Intern</em></h3><ul class="exp-ul"><li>Interiorismo Borbolla y Enramadilla · Torres Cruzcampo · Concurso Hotel Sevilla.</li></ul></div><div class="exp-tags"><span class="et">Enscape</span><span class="et">Twinmotion</span><span class="et">SketchUp</span></div></div>
+  <div class="exp-item rev"><div><div class="exp-date">Jun 2022 – May 2024</div><div class="exp-co">Ing. David Fonseca</div><div class="exp-loc">Cali, Colombia</div></div><div><h3 class="exp-role">Architectural <em>Visualizer</em></h3><ul class="exp-ul"><li>Casa Pance · Remodelación apartamento · Portería Bosques de Quintas.</li></ul></div><div class="exp-tags"><span class="et">Lumion</span><span class="et">SketchUp</span></div></div>
+  <div class="exp-item rev"><div><div class="exp-date">2020</div><div class="exp-co">Arq. Natalia Rojas / DAGMA</div><div class="exp-loc">Cali, Colombia</div></div><div><h3 class="exp-role">Architectural <em>Visualizer</em></h3><ul class="exp-ul"><li>Restaurante Pance · Planta de compostaje DAGMA.</li></ul></div><div class="exp-tags"><span class="et">Renders</span><span class="et">3D</span></div></div>
+</section>
+
+<!-- SOFTWARE -->
+<section id="software">
+  <div class="sw-top"><div class="exp-lbl" style="margin-bottom:.7rem">Herramientas</div><h2 class="exp-ttl">Software <em>dominado</em></h2></div>
+  <div class="sw-grid">
+    <div class="sw"><span class="sw-badge">2D/3D</span><div class="sw-name">AutoCAD</div><div class="sw-sub">Documentación</div></div>
+    <div class="sw"><span class="sw-badge">BIM</span><div class="sw-name">Revit</div><div class="sw-sub">Modelado BIM</div></div>
+    <div class="sw"><span class="sw-badge">3D</span><div class="sw-name">SketchUp</div><div class="sw-sub">Modelado</div></div>
+    <div class="sw"><span class="sw-badge">3D</span><div class="sw-name">3ds Max</div><div class="sw-sub">Render avanzado</div></div>
+    <div class="sw"><span class="sw-badge">Render</span><div class="sw-name">Lumion</div><div class="sw-sub">Visualización</div></div>
+    <div class="sw"><span class="sw-badge">Render</span><div class="sw-name">V-Ray</div><div class="sw-sub">Fotorrealismo</div></div>
+    <div class="sw"><span class="sw-badge">RT</span><div class="sw-name">Enscape</div><div class="sw-sub">Tiempo real</div></div>
+    <div class="sw"><span class="sw-badge">VR</span><div class="sw-name">Twinmotion</div><div class="sw-sub">Inmersivo</div></div>
+    <div class="sw"><span class="sw-badge">AI</span><div class="sw-name">D5 Render</div><div class="sw-sub">IA + Render</div></div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="ct-l rev-l">
+    <div class="ct-lbl">Contacto</div>
+    <h2 class="ct-big">Hablemos<br>de tu<br><em>proyecto</em></h2>
+    <p class="ct-sub">Disponible para proyectos freelance, colaboraciones y posiciones permanentes.</p>
+    <div>
+      <a href="/cdn-cgi/l/email-protection#e485889285968b8d8685969685d3d5d1a48389858d88ca878b89" class="ct-link"><div class="ct-ico">@</div><span class="__cf_email__" data-cfemail="5839342e392a37313a392a2a396f696d183f35393134763b3735">[email&#160;protected]</span></a>
+      <a href="tel:+573184803482" class="ct-link"><div class="ct-ico">☎</div>(+57) 318 480 3482</a>
+      <a href="#" class="ct-link"><div class="ct-ico">in</div>LinkedIn — Álvaro Ibarra</a>
+      <a href="#" class="ct-link"><div class="ct-ico">↓</div>Descargar CV</a>
+    </div>
+  </div>
+  <div class="ct-r rev">
+    <label class="f-lbl">Nombre</label><input type="text" class="f-inp" placeholder="Tu nombre completo">
+    <label class="f-lbl">Email</label><input type="email" class="f-inp" placeholder="correo@ejemplo.com">
+    <label class="f-lbl">Tipo de proyecto</label><input type="text" class="f-inp" placeholder="Arquitectura, interiorismo, renders...">
+    <label class="f-lbl">Mensaje</label><textarea class="f-inp" placeholder="Cuéntame sobre tu proyecto..."></textarea>
+    <a href="/cdn-cgi/l/email-protection#f594998394879a9c9794878794c2c4c0b59298949c99db969a98" class="f-btn">Enviar mensaje →</a>
+  </div>
+</section>
+
+<footer>
+  <div class="f-copy">© 2026 AIE Arquitectura — Álvaro Ibarra Escobar — Cali, Colombia</div>
+  <div class="f-brand">AI<span>E</span></div>
+</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ═══ DATOS DE PROYECTOS ═══
+const PROJECTS = {
+  'farallones-tower': {
+    id:'farallones-tower',cat:'Proyectos Arquitectónicos',
+    title:'Farallones Tower',titleEm:'ET02',
+    tags:['Residencial','29 pisos','Diseño biofílico','Vivienda vertical','2025'],
+    desc:`Este proyecto de <strong>29 pisos</strong> se concibe como un ícono de verticalidad contemporánea en la ciudad de Cali. Su diseño busca integrar arquitectura moderna con naturaleza, generando una experiencia residencial que conecta la vida urbana con el entorno.\n\nEl edificio se caracteriza por su <strong>fachada orgánica y dinámica</strong>, marcada por franjas curvas de madera y vegetación que recorren todo el volumen, aportando frescura, confort térmico y un lenguaje estético innovador. Cada nivel cuenta con amplias terrazas ajardinadas que fomentan un estilo de vida sostenible.\n\nLa volumetría propone una alternancia de llenos y vacíos que generan movimiento visual y aportan una fuerte identidad al conjunto, convirtiéndolo en un <strong>hito arquitectónico</strong>. Su coronación remata con un volumen en madera y cubierta verde.`,
+    ficha:[
+      ['Tipología','Residencial vertical'],['Pisos','29 niveles'],['Año','2025'],
+      ['Ubicación','Cali, Colombia'],['Cliente','Grupo Iconic'],['Rol','Diseño arquitectónico + Renders'],
+      ['Software','Revit · AutoCAD · D5 Render'],['Estado','En desarrollo']
+    ],
+    team:[
+      {initials:'AI',name:'Álvaro Ibarra Escobar',role:'Diseñador Arquitectónico · Renders',color:'#c13a24',bg:'rgba(193,58,36,.15)'},
+      {initials:'GI',name:'Grupo Iconic',role:'Promotora · Cliente',color:'#7a6244',bg:'rgba(122,98,68,.15)'}
+    ],
+    gallery:['Vista exterior fachada principal','Render terrazas ajardinadas','Planta tipo · Nivel residencial','Detalle celosía madera','Vista nocturna · Iluminación']
+  },
+  'farallones-125': {
+    id:'farallones-125',cat:'Proyectos Arquitectónicos',
+    title:'Farallones',titleEm:'125',
+    tags:['Residencial','15 niveles','Celosía de madera','Cali','2025'],
+    desc:`Este proyecto de <strong>15 niveles</strong> redefine el paisaje urbano de Cali a través de una arquitectura contemporánea que integra diseño elegante, vegetación y confort.\n\nLa fachada se caracteriza por un <strong>muro central en celosía de madera</strong> que enmarca verticalmente el edificio. A sus costados, amplios balcones con jardineras lineales se proyectan piso a piso, creando un efecto dinámico de terrazas verdes.\n\nEl primer nivel abre el proyecto hacia la ciudad con un <strong>lobby de acceso amplio</strong> y parqueaderos integrados, mientras que los pisos superiores ofrecen apartamentos diseñados para maximizar la ventilación cruzada, la iluminación natural y las vistas panorámicas de Cali.`,
+    ficha:[
+      ['Tipología','Residencial vertical'],['Pisos','15 niveles'],['Año','2025'],
+      ['Ubicación','Cali, Colombia'],['Cliente','Grupo Iconic'],['Rol','Diseño + Renders'],
+      ['Software','Revit · AutoCAD · D5 Render'],['Estado','En desarrollo']
+    ],
+    team:[
+      {initials:'AI',name:'Álvaro Ibarra Escobar',role:'Diseñador Arquitectónico · Renders',color:'#c13a24',bg:'rgba(193,58,36,.15)'},
+      {initials:'GI',name:'Grupo Iconic',role:'Promotora · Cliente',color:'#7a6244',bg:'rgba(122,98,68,.15)'}
+    ],
+    gallery:['Vista frontal fachada','Detalle celosía madera','Balcones con jardineras','Lobby acceso planta baja','Vista panorámica Cali']
+  },
+  'vibe-suiza': {
+    id:'vibe-suiza',cat:'Proyectos Arquitectónicos',
+    title:'Vibe Suiza',titleEm:'Tower',
+    tags:['Residencial','10 pisos','Jardines verticales','La Suiza · Cali','2025'],
+    desc:`Vibe Suiza es un proyecto residencial de <strong>10 pisos</strong>, concebido como una propuesta de vivienda vertical que combina diseño contemporáneo, sostenibilidad y confort urbano.\n\nSu fachada se distingue por la integración de <strong>jardines verticales y celosías de madera</strong>, elementos que aportan frescura, control climático y un lenguaje arquitectónico natural. Los balcones verdes generan un ritmo visual dinámico y promueven la conexión directa con la naturaleza en cada apartamento.\n\nEl edificio se abre a la ciudad con un <strong>lobby de acceso moderno y transparente</strong>. En los niveles superiores, los apartamentos están diseñados para aprovechar la ventilación cruzada, la iluminación natural y las vistas despejadas hacia el barrio tradicional de La Suiza.`,
+    ficha:[
+      ['Tipología','Residencial vertical'],['Pisos','10 niveles'],['Año','2025'],
+      ['Ubicación','La Suiza, Cali'],['Cliente','Grupo Iconic'],['Rol','Diseño + Renders + Branding'],
+      ['Software','Revit · AutoCAD · D5 Render'],['Estado','En desarrollo']
+    ],
+    team:[
+      {initials:'AI',name:'Álvaro Ibarra Escobar',role:'Diseñador Arquitectónico · Renders · Branding',color:'#c13a24',bg:'rgba(193,58,36,.15)'},
+      {initials:'GI',name:'Grupo Iconic',role:'Promotora · Cliente',color:'#7a6244',bg:'rgba(122,98,68,.15)'}
+    ],
+    gallery:['Vista exterior jardines verticales','Fachada celosía madera','Terraza balcón verde','Lobby transparente','Vista nocturna']
+  },
+  'hotel-sevilla': {
+    id:'hotel-sevilla',cat:'Proyectos Arquitectónicos',
+    title:'Hotel',titleEm:'Sevilla',
+    tags:['Concurso hotelero','Sevilla · España','Arquitectura mediterránea','2024'],
+    desc:`Proyecto de concurso para un hotel en el entorno de San Francisco Javier, Sevilla. El principal reto era dar forma a un programa muy compacto al tiempo de ofrecer un <strong>frente urbano dinámico y fresco</strong>.\n\nLa compleja geometría del solar invita a concentrar la edificación de forma que se libere el sur para el disfrute de los espacios exteriores. La edificación se parte en dos bandas que juegan en altura y posición, liberando un espacio cualificado esencial para que el edificio participe de la <strong>vida urbana del entorno</strong>.\n\nEl proyecto propone un recorrido por el imaginario de espacios exteriores de Sevilla: el <strong>zaguán, el jardín interior, el patio comunitario, el balcón-patio privado y la azotea verde</strong>. El 100% de los apartamentos disfrutan de orientación sur.`,
+    ficha:[
+      ['Tipología','Hotel + Residencial'],['Año','2024'],
+      ['Ubicación','Sevilla, España'],['Cliente','Concurso U+G Arquitectos'],
+      ['Rol','Modelado 3D · Renders · Presentación'],['Software','SketchUp · Enscape · Twinmotion'],
+      ['Estado','Concurso']
+    ],
+    team:[
+      {initials:'AI',name:'Álvaro Ibarra Escobar',role:'Renders · Modelado 3D · Presentación',color:'#c13a24',bg:'rgba(193,58,36,.15)'},
+      {initials:'UG',name:'U+G Arquitectos',role:'Diseño arquitectónico · Dirección',color:'#4a7c6f',bg:'rgba(74,124,111,.15)'}
+    ],
+    gallery:['El zaguán — acceso urbano','El jardín interior','El patio comunitario','El balcón privado','La azotea verde','Soleamiento — orientación sur']
+  },
+  'farallones-mall': {
+    id:'farallones-mall',cat:'Proyectos Arquitectónicos',
+    title:'Farallones',titleEm:'Mall & Tower',
+    tags:['Uso mixto','Comercio · Oficinas · Hotel','Cali','2025'],
+    desc:`Farallones Mall & Tower es un <strong>ícono arquitectónico</strong> que fusiona comercio, oficinas y hotel en un mismo espacio. Su diseño contemporáneo con terrazas verdes y espacios abiertos lo convierte en un destino único en la ciudad.\n\nEl centro comercial ofrece <strong>experiencias gastronómicas, moda y entretenimiento</strong> de primer nivel. La torre se eleva con exclusivas oficinas y un hotel de categoría, ideal para negocios y descanso.\n\nUn complejo moderno que redefine el estilo de vida urbano con elegancia y sofisticación.`,
+    ficha:[
+      ['Tipología','Uso mixto'],['Año','2025'],['Ubicación','Cali, Colombia'],
+      ['Cliente','Grupo Iconic'],['Usos','Centro comercial · Oficinas · Hotel'],
+      ['Rol','Diseño arquitectónico · Renders'],['Software','Revit · D5 Render'],['Estado','En desarrollo']
+    ],
+    team:[
+      {initials:'AI',name:'Álvaro Ibarra Escobar',role:'Diseñador Arquitectónico · Renders',color:'#c13a24',bg:'rgba(193,58,36,.15)'},
+      {initials:'GI',name:'Grupo Iconic',role:'Promotora · Cliente',color:'#7a6244',bg:'rgba(122,98,68,.15)'}
+    ],
+    gallery:['Vista exterior complejo','Centro comercial planta baja','Torre de oficinas','Hotel nivel superior','Vista aérea conjunta']
+  },
+  'casa-gaudi': {
+    id:'casa-gaudi',cat:'Proyectos Arquitectónicos',
+    title:'Casa',titleEm:'Gaudí',
+    tags:['Residencial unifamiliar','Lujo','Diseño contemporáneo','2025'],
+    desc:`La Casa Gaudí es una <strong>residencia de diseño contemporáneo</strong> que integra elegancia, confort y naturaleza. Sus ventanales de piso a techo inundan los espacios con luz natural y conectan el interior con los jardines.\n\nCuenta con <strong>piscina, terraza social y áreas abiertas</strong> que invitan a disfrutar de la vida al aire libre. Un hogar pensado para quienes buscan exclusividad, amplitud y un estilo de vida sofisticado.`,
+    ficha:[
+      ['Tipología','Residencial unifamiliar'],['Año','2025'],['Ubicación','Cali, Colombia'],
+      ['Cliente','Ing. Andrés Felipe Espinoza'],['Rol','Diseño arquitectónico · Renders'],
+      ['Software','SketchUp · Lumion'],['Estado','En desarrollo']
+    ],
+    team:[
+      {initials:'AI',name:'Álvaro Ibarra Escobar',role:'Diseñador Arquitectónico · Renders',color:'#c13a24',bg:'rgba(193,58,36,.15)'},
+      {initials:'AE',name:'Ing. Andrés Felipe Espinoza',role:'Cliente · Ingeniero',color:'#7a6244',bg:'rgba(122,98,68,.15)'}
+    ],
+    gallery:['Fachada principal','Sala principal con ventanales','Terraza social','Piscina · Vista exterior','Jardines integrados']
+  },
+  'dermalaser': {
+    id:'dermalaser',cat:'Proyectos Arquitectónicos',
+    title:'Dermalaser',titleEm:'Ciudad Jardín',
+    tags:['Comercial · Clínica','Construido','Ciudad Jardín · Cali','2020'],
+    desc:`Proyecto comercial desarrollado para una <strong>clínica cosmética</strong> ubicada en el barrio Ciudad Jardín de Cali. El proyecto se encuentra actualmente <strong>construido</strong>.\n\nMi participación abarcó desde la etapa de diseño arquitectónico hasta la modelación y representación 3D, contribuyendo a materializar la propuesta y comunicar de manera precisa los espacios y la experiencia proyectada.`,
+    ficha:[
+      ['Tipología','Clínica cosmética · Comercial'],['Año','2020'],
+      ['Ubicación','Ciudad Jardín, Cali'],['Cliente','AT Arquitectos'],
+      ['Rol','Diseño arquitectónico · Renders 3D'],['Software','SketchUp · Lumion'],['Estado','✦ Construido']
+    ],
+    team:[
+      {initials:'AI',name:'Álvaro Ibarra Escobar',role:'Diseñador Arquitectónico · Renders',color:'#c13a24',bg:'rgba(193,58,36,.15)'},
+      {initials:'AT',name:'Arq. Andrés Tenorio',role:'Arquitecto principal · AT Arquitectos',color:'#7a6244',bg:'rgba(122,98,68,.15)'}
+    ],
+    gallery:['Fachada exterior','Recepción · Sala de espera','Consultorios interiores','Detalle acabados','Vista desde Ciudad Jardín']
+  },
+  'vis-vip': {
+    id:'vis-vip',cat:'Proyectos Universitarios',
+    title:'Vivienda Colectiva',titleEm:'VIS / VIP',
+    tags:['1er Puesto','Concurso Alcaldía','Madera y Guadua','Santa Rosa de Cabal','Simón Vélez'],
+    desc:`Proyecto académico de <strong>7° semestre</strong>, enfocado en vivienda multifamiliar VIS y VIP, desarrollado en el marco de un concurso de la Alcaldía de Santa Rosa de Cabal para proponer un nuevo prototipo habitacional reducido ante el crecimiento urbano.\n\nLa propuesta se planteó con uso exclusivo de <strong>madera y guadua (bambú colombiano)</strong> como sistemas constructivos sostenibles, obteniendo el <strong>primer puesto</strong> y el reconocimiento del arquitecto Simón Vélez por su innovación y pertinencia en el contexto local.\n\nEl proyecto integra criterios de sostenibilidad, identidad local y eficiencia espacial, proponiendo un modelo habitacional replicable para contextos rurales y periurbanos colombianos.`,
+    ficha:[
+      ['Tipología','Vivienda multifamiliar VIS/VIP'],['Semestre','7° semestre'],
+      ['Año','2022'],['Ubicación','Santa Rosa de Cabal, Colombia'],
+      ['Materiales','Madera + Guadua (bambú colombiano)'],['Reconocimiento','1er Puesto · Arq. Simón Vélez'],
+      ['Universidad','Universidad de San Buenaventura, Cali'],['Estado','✦ Primer puesto concurso']
+    ],
+    team:[
+      {initials:'AI',name:'Álvaro Ibarra Escobar',role:'Diseñador · Autor del proyecto',color:'#4a7c6f',bg:'rgba(74,124,111,.15)'},
+      {initials:'SV',name:'Arq. Simón Vélez',role:'Reconocimiento especial',color:'#7a6244',bg:'rgba(122,98,68,.15)'},
+      {initials:'USB',name:'Universidad San Buenaventura',role:'Institución educativa',color:'#4a7c6f',bg:'rgba(74,124,111,.12)'}
+    ],
+    gallery:['Planta general propuesta','Alzado fachada principal','Detalle estructura madera','Detalle guadua · bambú','Perspectiva conjunto','Implantación urbana']
+  },
+  'corazon-pance': {
+    id:'corazon-pance',cat:'Proyectos Universitarios',
+    title:'Corazón',titleEm:'de Pance',
+    tags:['Urbanismo','Reconocimiento nacional','Plan Urbano','Comuna 22 · Cali','8° semestre'],
+    desc:`Proyecto urbano de <strong>8° semestre</strong>, asesorado por la arquitecta y urbanista Marcela Falla, reconocido a nivel nacional. Consistió en la elaboración de un <strong>Plan Urbano General para la Comuna 22</strong> de Santiago de Cali.\n\nEl proyecto partió de la identificación de problemáticas urbanas y su intervención mediante propuestas de solución. Posteriormente, se desarrolló un <strong>Plan Urbano Estratégico</strong> enfocado en un sector específico, integrando lineamientos de movilidad, espacio público y sostenibilidad territorial.\n\nLa propuesta fue reconocida a nivel nacional por su rigor metodológico y la pertinencia de sus intervenciones en el tejido urbano de Cali.`,
+    ficha:[
+      ['Tipología','Plan Urbano General'],['Semestre','8° semestre'],
+      ['Año','2023'],['Ubicación','Comuna 22, Santiago de Cali'],
+      ['Asesora','Arq. y Urbanista Marcela Falla'],['Reconocimiento','Nacional'],
+      ['Universidad','Universidad de San Buenaventura, Cali'],['Estado','✦ Reconocimiento nacional']
+    ],
+    team:[
+      {initials:'AI',name:'Álvaro Ibarra Escobar',role:'Urbanista · Autor del proyecto',color:'#4a7c6f',bg:'rgba(74,124,111,.15)'},
+      {initials:'MF',name:'Arq. Marcela Falla',role:'Asesora · Urbanista',color:'#7a6244',bg:'rgba(122,98,68,.15)'},
+      {initials:'USB',name:'Universidad San Buenaventura',role:'Institución educativa',color:'#4a7c6f',bg:'rgba(74,124,111,.12)'}
+    ],
+    gallery:['Plan urbano general','Análisis de problemáticas','Propuesta de movilidad','Espacio público propuesto','Zonificación estratégica','Render perspectiva urbana']
+  },
+  'salon-bioclimatico': {
+    id:'salon-bioclimatico',cat:'Proyectos Universitarios',
+    title:'Salón Comunitario',titleEm:'Los Libertadores',
+    tags:['Arquitectura bioclimática','6° semestre','Centro cultural','Diseño sostenible'],
+    desc:`Proyecto académico de <strong>6° semestre</strong> desarrollado en un barrio sin espacio público común, enfocado en la creación de un lugar de encuentro comunitario mediante <strong>criterios bioclimáticos</strong>.\n\nLa propuesta aprovecha la orientación solar y los vientos predominantes para optimizar iluminación y ventilación natural, integrando vegetación y <strong>materiales sostenibles de bajo impacto</strong>.\n\nEl diseño busca generar confort ambiental, fortalecer la identidad del sector y promover la cohesión social a través de un espacio accesible y apropiable por la comunidad.`,
+    ficha:[
+      ['Tipología','Centro cultural comunitario'],['Semestre','6° semestre'],
+      ['Año','2021'],['Ubicación','Cali, Colombia'],
+      ['Estrategia','Diseño bioclimático pasivo'],['Materiales','Bajo impacto ambiental'],
+      ['Universidad','Universidad de San Buenaventura, Cali'],['Estado','Proyecto académico']
+    ],
+    team:[
+      {initials:'AI',name:'Álvaro Ibarra Escobar',role:'Diseñador · Autor del proyecto',color:'#4a7c6f',bg:'rgba(74,124,111,.15)'},
+      {initials:'USB',name:'Universidad San Buenaventura',role:'Institución educativa · Cali',color:'#4a7c6f',bg:'rgba(74,124,111,.12)'}
+    ],
+    gallery:['Planta arquitectónica','Alzado bioclimático','Sección transversal','Diagrama solar','Perspectiva exterior','Interior salón comunal']
+  },
+  'residencia-artistas': {
+    id:'residencia-artistas',cat:'Proyectos Universitarios',
+    title:'Residencia para',titleEm:'Artistas',
+    tags:['5° Semestre','Vivienda colectiva','Cali','Casa de la Queja','Patios y vacíos'],
+    desc:`Este proyecto propone una <strong>residencia para artistas en la ciudad de Cali</strong>, concebida como un sistema habitable que integra creación, encuentro y vida cotidiana dentro de un contexto urbano consolidado.\n\nImplantado entre medianeras, el edificio se desarrolla a partir de una <strong>operación en sección</strong> que permite extender la experiencia espacial desde la cota baja hasta la más alta del lote. A través de un escalonamiento progresivo, la arquitectura se adapta a la topografía y construye una secuencia continua de espacios intermedios.\n\nLa volumetría se fragmenta en <strong>tres cuerpos principales</strong> que reinterpretan la lógica de la casa de la Queja, incorporando patios y vacíos que funcionan como núcleos de luz, ventilación y relación colectiva. Estos recintos interiores no solo organizan el programa, sino que activan dinámicas de interacción entre los residentes.\n\nUn <strong>pasaje longitudinal</strong> atraviesa el edificio conectando los distintos niveles y articulando el proyecto con la ciudad. Este recorrido se vincula directamente con una cafetería en el primer nivel, entendida como un espacio abierto que extiende la actividad artística hacia lo público.\n\nMás que una residencia, el proyecto se plantea como una <strong>plataforma creativa</strong> donde la arquitectura actúa como mediadora entre lo individual y lo colectivo, entre el habitar y el producir, entre el interior y la ciudad.`,
+    ficha:[
+      ['Tipología','Residencia colectiva para artistas'],
+      ['Semestre','5° semestre'],
+      ['Ubicación','Cali, Colombia'],
+      ['Estrategia','Operación en sección · Escalonamiento progresivo'],
+      ['Referencias','Casa de la Queja · Patios y vacíos'],
+      ['Programa','Talleres · Vivienda · Cafetería pública · Pasaje urbano'],
+      ['Universidad','Universidad de San Buenaventura, Cali'],
+      ['Estado','Proyecto académico']
+    ],
+    team:[
+      {initials:'AI',name:'Álvaro Ibarra Escobar',role:'Diseñador · Autor del proyecto',color:'#4a7c6f',bg:'rgba(74,124,111,.15)'},
+      {initials:'USB',name:'Universidad San Buenaventura',role:'Institución educativa · Cali',color:'#4a7c6f',bg:'rgba(74,124,111,.12)'}
+    ],
+    gallery:['Vista exterior — tres cuerpos escalonados','Sección longitudinal — operación en sección','Planta baja — cafetería y pasaje urbano','Patios interiores — luz y ventilación','Alzado — adaptación topográfica','Perspectiva interior — pasaje longitudinal']
+  },
+  'concurso-alacero': {
+    id:'concurso-alacero',cat:'Proyectos Universitarios',
+    title:'Concurso',titleEm:'ALACERO',
+    tags:['Concurso nacional','Arquitectura en acero','Latinoamérica','2024'],
+    desc:`Participación en el <strong>Concurso ALACERO</strong>, una de las competencias de arquitectura más importantes de Latinoamérica enfocada en el uso del acero como material constructivo principal.\n\nLa propuesta explora los límites expresivos y estructurales del acero, desarrollando una solución arquitectónica que integra <strong>innovación técnica y pertinencia contextual</strong>.\n\nEl proyecto implicó investigación de sistemas constructivos en acero, desarrollo de memorias descriptivas, planimetría y representación gráfica de alto nivel.`,
+    ficha:[
+      ['Tipología','Concurso arquitectónico'],['Año','2024'],
+      ['Alcance','Latinoamérica'],['Material principal','Acero estructural'],
+      ['Rol','Diseño · Planimetría · Memorias · Renders'],['Software','AutoCAD · SketchUp · Lumion'],
+      ['Estado','✦ Concurso nacional']
+    ],
+    team:[
+      {initials:'AI',name:'Álvaro Ibarra Escobar',role:'Diseñador · Autor del proyecto',color:'#4a7c6f',bg:'rgba(74,124,111,.15)'},
+      {initials:'AL',name:'ALACERO',role:'Organización del concurso',color:'#7a6244',bg:'rgba(122,98,68,.15)'}
+    ],
+    gallery:['Perspectiva exterior','Detalle estructura acero','Planta general','Sección estructural','Memoria descriptiva','Render final']
+  },
+  'naples-holguines': {
+    id:'naples-holguines',cat:'Proyectos de Interiorismo',
+    title:'Oficina Naples',titleEm:'Holguines',
+    tags:['Diseño corporativo','14 espacios','Naples Prime SAS','Cali · 2024'],
+    desc:`Proyecto de diseño interior corporativo para <strong>Naples Prime SAS</strong> en el sector Holguines de Cali. Nos enfocamos en optimizar el diseño para que cada espacio funcione de manera ergonómica, permitiendo a quienes trabajan aquí disfrutar de áreas amplias y confortables.\n\nCada oficina fue diseñada de manera <strong>personalizada</strong>, adaptándose a las necesidades específicas de cada área para ofrecer privacidad adecuada y potenciar la productividad individual y de equipo.\n\nAprovechamos los ventanales existentes para maximizar la <strong>entrada de luz natural</strong> y conservar la vista hacia los icónicos Farallones de Cali. Espacios diseñados: exclusa, sala de espera, corredor principal, área de negocios, gerencia general, sala de juntas, zona administrativa, cocineta, baño y fundición.`,
+    ficha:[
+      ['Tipología','Diseño de interiores corporativo'],['Año','2024'],
+      ['Ubicación','Holguines, Cali, Colombia'],['Cliente','Naples Prime SAS CI'],
+      ['Espacios','14 zonas diseñadas'],['Rol','Diseño interior · Planimetría · Renders'],
+      ['Software','SketchUp · Enscape'],['Estado','Ejecutado']
+    ],
+    team:[
+      {initials:'AI',name:'Álvaro Ibarra Escobar',role:'Diseñador de interiores · AI Arquitectos',color:'#7a6244',bg:'rgba(122,98,68,.15)'},
+      {initials:'NP',name:'Naples Prime SAS',role:'Cliente · Empresa',color:'#4a7c6f',bg:'rgba(74,124,111,.15)'}
+    ],
+    gallery:['Exclusa y sala de espera','Corredor principal','Área de negocios','Gerencia general','Sala de juntas','Zona administrativa · Cocineta']
+  },
+  'naples-torre': {
+    id:'naples-torre',cat:'Proyectos de Interiorismo',
+    title:'Oficina Naples',titleEm:'Torre de Cali',
+    tags:['Diseño corporativo','Naples Prime SAS','Torre de Cali','2024'],
+    desc:`Segunda sede de <strong>Naples Prime SAS</strong>, esta vez ubicada en la Torre de Cali. Con el mismo enfoque ergonómico y funcional de la primera sede, este proyecto adapta los principios de diseño corporativo al espacio disponible en la torre.\n\nSe trabajó en la optimización espacial, maximizando la <strong>iluminación natural</strong> y la funcionalidad de cada zona, garantizando confort y productividad para el equipo de trabajo.`,
+    ficha:[
+      ['Tipología','Diseño de interiores corporativo'],['Año','2024'],
+      ['Ubicación','Torre de Cali, Cali, Colombia'],['Cliente','Naples Prime SAS CI'],
+      ['Rol','Diseño interior · Planimetría · Renders'],['Software','SketchUp · Enscape'],['Estado','Ejecutado']
+    ],
+    team:[
+      {initials:'AI',name:'Álvaro Ibarra Escobar',role:'Diseñador de interiores · AI Arquitectos',color:'#7a6244',bg:'rgba(122,98,68,.15)'},
+      {initials:'NP',name:'Naples Prime SAS',role:'Cliente · Empresa',color:'#4a7c6f',bg:'rgba(74,124,111,.15)'}
+    ],
+    gallery:['Recepción y sala de espera','Área administrativa','Oficinas privadas','Sala de reuniones','Cocineta y zonas comunes']
+  },
+  'apartamento-borbolla': {
+    id:'apartamento-borbolla',cat:'Proyectos de Interiorismo',
+    title:'Apartamento',titleEm:'Borbolla',
+    tags:['Interiorismo residencial','Sevilla · España','Diseño contemporáneo','2024'],
+    desc:`Proyecto de interiorismo desarrollado en un <strong>apartamento en el sector Borbolla</strong> de Sevilla, España. La propuesta se centró en optimizar la distribución espacial y potenciar la iluminación natural.\n\nSe trabajó en la <strong>selección de materiales, paleta cromática y mobiliario</strong>, logrando un diseño contemporáneo que combina sobriedad, calidez y confort dentro de un espacio reducido. La propuesta integra el estilo mediterráneo con un enfoque contemporáneo y funcional.`,
+    ficha:[
+      ['Tipología','Interiorismo residencial'],['Año','2024'],
+      ['Ubicación','Borbolla, Sevilla, España'],['Cliente','U+G Arquitectos'],
+      ['Rol','Diseño interior · Renders'],['Software','SketchUp · Enscape'],['Estado','Ejecutado']
+    ],
+    team:[
+      {initials:'AI',name:'Álvaro Ibarra Escobar',role:'Diseñador de interiores · Renders',color:'#7a6244',bg:'rgba(122,98,68,.15)'},
+      {initials:'UG',name:'U+G Arquitectos',role:'Estudio · Dirección del proyecto',color:'#4a7c6f',bg:'rgba(74,124,111,.15)'}
+    ],
+    gallery:['Sala de estar principal','Comedor integrado','Dormitorio principal','Baño · Acabados','Cocina contemporánea']
+  },
+  'apartamento-enramadilla': {
+    id:'apartamento-enramadilla',cat:'Proyectos de Interiorismo',
+    title:'Apartamento',titleEm:'Enramadilla',
+    tags:['Interiorismo residencial','Sevilla · España','Luminoso','2024'],
+    desc:`Proyecto de interiorismo realizado en un <strong>apartamento del sector Enramadilla</strong>, Sevilla. La propuesta se enfocó en maximizar el aprovechamiento del espacio y generar una atmósfera moderna y funcional.\n\nSe trabajó en la organización espacial, el uso de <strong>materiales cálidos y una paleta cromática neutra</strong> que aporta amplitud y luminosidad, logrando un diseño equilibrado entre confort y estética contemporánea.`,
+    ficha:[
+      ['Tipología','Interiorismo residencial'],['Año','2024'],
+      ['Ubicación','Enramadilla, Sevilla, España'],['Cliente','U+G Arquitectos'],
+      ['Rol','Diseño interior · Renders'],['Software','SketchUp · Enscape'],['Estado','Ejecutado']
+    ],
+    team:[
+      {initials:'AI',name:'Álvaro Ibarra Escobar',role:'Diseñador de interiores · Renders',color:'#7a6244',bg:'rgba(122,98,68,.15)'},
+      {initials:'UG',name:'U+G Arquitectos',role:'Estudio · Dirección del proyecto',color:'#4a7c6f',bg:'rgba(74,124,111,.15)'}
+    ],
+    gallery:['Sala principal luminosa','Dormitorio principal','Baño contemporáneo','Cocina abierta','Detalles de acabados']
+  },
+  'remodelacion-apt': {
+    id:'remodelacion-apt',cat:'Proyectos de Interiorismo',
+    title:'Remodelación',titleEm:'Apartamento',
+    tags:['Interiorismo residencial','Diseño joven','Funcional','Cali · 2022'],
+    desc:`Proyecto residencial diseñado para un <strong>usuario joven y soltero</strong>, con énfasis en la funcionalidad y el estilo de vida individual. La propuesta integra espacios abiertos y versátiles, con una estética contemporánea que combina sobriedad y modernidad.\n\nMi participación abarcó el diseño arquitectónico y la representación visual, priorizando la <strong>comodidad, la eficiencia espacial</strong> y una identidad propia acorde al usuario.`,
+    ficha:[
+      ['Tipología','Remodelación residencial'],['Año','2022'],
+      ['Ubicación','Cali, Colombia'],['Cliente','Ing. David Fonseca'],
+      ['Rol','Diseño interior · Renders 3D'],['Software','SketchUp · Lumion'],['Estado','Ejecutado']
+    ],
+    team:[
+      {initials:'AI',name:'Álvaro Ibarra Escobar',role:'Diseñador de interiores · Renders',color:'#7a6244',bg:'rgba(122,98,68,.15)'},
+      {initials:'DF',name:'Ing. David Fonseca',role:'Cliente · Ingeniero',color:'#4a7c6f',bg:'rgba(74,124,111,.15)'}
+    ],
+    gallery:['Sala de estar abierta','Zona de trabajo integrada','Dormitorio · Espacios compactos','Cocina funcional','Detalles contemporáneos']
+  },
+  'gerencia-unicentro': {
+    id:'gerencia-unicentro',cat:'Proyectos de Interiorismo',
+    title:'Gerencia',titleEm:'Unicentro',
+    tags:['Diseño corporativo','CC Unicentro','Cali','2023'],
+    desc:`Proyecto de adecuación y modernización de las <strong>oficinas administrativas del Centro Comercial Unicentro</strong> en Cali. La propuesta se enfocó en optimizar la funcionalidad y la distribución espacial, mejorando la experiencia laboral.\n\nMi participación incluyó el desarrollo del diseño arquitectónico y su representación visual, garantizando una propuesta coherente con la <strong>identidad del centro comercial</strong>.`,
+    ficha:[
+      ['Tipología','Interiorismo corporativo'],['Año','2023'],
+      ['Ubicación','CC Unicentro, Cali, Colombia'],['Cliente','AT Arquitectos'],
+      ['Rol','Diseño interior · Renders'],['Software','SketchUp · Lumion'],['Estado','Ejecutado']
+    ],
+    team:[
+      {initials:'AI',name:'Álvaro Ibarra Escobar',role:'Diseñador de interiores · Renders',color:'#7a6244',bg:'rgba(122,98,68,.15)'},
+      {initials:'AT',name:'Arq. Andrés Tenorio',role:'Arquitecto principal · AT Arquitectos',color:'#4a7c6f',bg:'rgba(74,124,111,.15)'}
+    ],
+    gallery:['Gerencia principal','Sala de reuniones ejecutiva','Zona de trabajo abierta','Recepción de gerencia','Detalles corporativos']
+  }
+};
+
+const PROJECT_ORDER = Object.keys(PROJECTS);
+let currentProject = null;
+
+function openProject(id) {
+  const p = PROJECTS[id];
+  if(!p) return;
+  currentProject = id;
+
+  // Breadcrumb
+  document.getElementById('detail-breadcrumb-cat').textContent = p.cat;
+  document.getElementById('detail-breadcrumb-name').textContent = p.title + ' ' + p.titleEm;
+
+  // Title
+  document.getElementById('detail-title').innerHTML = p.title + ' <em>' + p.titleEm + '</em>';
+
+  // Tags
+  const tagsEl = document.getElementById('detail-tags');
+  tagsEl.innerHTML = p.tags.map(t => `<span class="detail-tag">${t}</span>`).join('');
+
+  // Hero BG color based on category
+  const heroBg = document.getElementById('detail-hero-bg');
+  if(p.cat === 'Proyectos Arquitectónicos') heroBg.style.background = 'linear-gradient(145deg,#1c1408,#2a1e0c)';
+  else if(p.cat === 'Proyectos Universitarios') heroBg.style.background = 'linear-gradient(145deg,#081410,#0e2018)';
+  else heroBg.style.background = 'linear-gradient(145deg,#14100a,#20180e)';
+
+  // Description
+  document.getElementById('detail-desc').innerHTML = p.desc.replace(/\n/g,'<br><br>');
+
+  // Ficha técnica
+  const fichaEl = document.getElementById('detail-ficha');
+  fichaEl.innerHTML = p.ficha.map(([l,v]) => `
+    <div class="ficha-row">
+      <span class="ficha-label">${l}</span>
+      <span class="ficha-value">${v}</span>
+    </div>`).join('');
+
+  // Team
+  const teamEl = document.getElementById('detail-team');
+  teamEl.innerHTML = p.team.map(m => `
+    <div class="team-member">
+      <div class="team-avatar" style="background:${m.bg};color:${m.color}">${m.initials}</div>
+      <div class="team-info">
+        <div class="team-name">${m.name}</div>
+        <div class="team-role">${m.role}</div>
+      </div>
+    </div>`).join('');
+
+  // Gallery
+  const thumbsEl = document.getElementById('detail-gallery-thumbs');
+  const accColor = p.cat === 'Proyectos Arquitectónicos' ? '#c13a24' : p.cat === 'Proyectos Universitarios' ? '#4a7c6f' : '#7a6244';
+  thumbsEl.innerHTML = p.gallery.map((name, i) => `
+    <div class="gallery-thumb ${i===0?'active':''}" onclick="selectThumb(this,'${name}','${accColor}')">
+      <div class="gallery-thumb-bg" style="background:${i===0?'rgba(240,236,228,.05)':'rgba(240,236,228,.02)'}">
+        <div class="gallery-add-label">
+          <span style="font-size:.7rem;opacity:.3">◻</span>
+          <span>${name}</span>
+        </div>
+      </div>
+    </div>`).join('');
+
+  // Main gallery
+  if(p.gallery[0]) {
+    document.getElementById('detail-gallery-main-bg').innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1rem;width:100%;height:100%;background:rgba(240,236,228,.025)">
+        <span style="font-size:3rem;opacity:.12">◻</span>
+        <span style="font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;color:rgba(240,236,228,.2);text-align:center;padding:0 2rem">${p.gallery[0]}</span>
+        <span style="font-family:var(--mono);font-size:.5rem;color:rgba(240,236,228,.12);text-align:center">Agrega tu imagen aquí</span>
+      </div>`;
+  }
+
+  // Prev/Next
+  const idx = PROJECT_ORDER.indexOf(id);
+  document.getElementById('detail-prev').style.opacity = idx > 0 ? '1' : '0.3';
+  document.getElementById('detail-next').style.opacity = idx < PROJECT_ORDER.length-1 ? '1' : '0.3';
+
+  // Open
+  const detail = document.getElementById('proj-detail');
+  detail.classList.add('open');
+  detail.scrollTop = 0;
+  document.body.style.overflow = 'hidden';
+}
+
+function selectThumb(el, name, accent) {
+  document.querySelectorAll('.gallery-thumb').forEach(t => { t.classList.remove('active'); t.style.outline = ''; });
+  el.classList.add('active');
+  el.style.outline = `2px solid ${accent}`;
+  document.getElementById('detail-gallery-main-bg').innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1rem;width:100%;height:100%;background:rgba(240,236,228,.025)">
+      <span style="font-size:3rem;opacity:.12">◻</span>
+      <span style="font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;color:rgba(240,236,228,.2);text-align:center;padding:0 2rem">${name}</span>
+      <span style="font-family:var(--mono);font-size:.5rem;color:rgba(240,236,228,.12);text-align:center">Agrega tu imagen aquí</span>
+    </div>`;
+}
+
+function closeDetail() {
+  const detail = document.getElementById('proj-detail');
+  detail.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function navProject(dir) {
+  const idx = PROJECT_ORDER.indexOf(currentProject);
+  const newIdx = idx + dir;
+  if(newIdx >= 0 && newIdx < PROJECT_ORDER.length) {
+    openProject(PROJECT_ORDER[newIdx]);
+    document.getElementById('proj-detail').scrollTop = 0;
+  }
+}
+
+// Keyboard: Escape cierra el detalle
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeDetail(); });
+
+// Cursor
+const cur=document.getElementById('cur'),ring=document.getElementById('cur-r');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px'});
+(function loop(){rx+=(mx-rx)*.1;ry+=(my-ry)*.1;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(loop)})();
+
+// Nav scroll
+const nav=document.getElementById('nav');
+window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',scrollY>60));
+
+// Category switch
+function switchCat(cat,btn){
+  document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.cat-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  const panel = document.getElementById('panel-'+cat);
+  panel.classList.add('active');
+  panel.querySelectorAll('.rev').forEach(el=>{el.classList.remove('in');setTimeout(()=>el.classList.add('in'),80)});
+}
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{
+  const t=document.querySelector(a.getAttribute('href'));
+  if(t){e.preventDefault();window.scrollTo({top:t.offsetTop-75,behavior:'smooth'});}
+}));
+
+// Scroll reveal
+const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')}),{threshold:.06});
+document.querySelectorAll('.rev,.rev-l').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>
