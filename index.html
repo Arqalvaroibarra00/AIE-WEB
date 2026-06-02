@@ -1469,19 +1469,19 @@ document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',
 
 // Scroll reveal handled by GSAP ScrollTrigger above
 
-// ── Red de seguridad de revelado (fix: ScrollTrigger no revelaba al cargar) ──
+
+
+// ── Fix definitivo de revelado: garantizar que TODO el contenido sea visible ──
 window.addEventListener('load', () => {
-  try { if (window.ScrollTrigger) ScrollTrigger.refresh(); } catch(e){}
   setTimeout(() => {
-    document.querySelectorAll('.rev,.rev-l').forEach(el => {
-      if (parseFloat(getComputedStyle(el).opacity) === 0) {
-        try { if (window.gsap) gsap.set(el, {clearProps:'all'}); } catch(e){}
-        el.style.opacity='1'; el.style.transform='none'; el.style.filter='none';
-        el.classList.add('in');
-      }
+    try { if (window.ScrollTrigger) ScrollTrigger.getAll().forEach(t => t.kill(false)); } catch(e){}
+    const sel = '.rev,.rev-l,.pc,.uni-card,.int-card,.sw,.exp-item,.exp-ttl,.about-bio,.ct-big';
+    document.querySelectorAll(sel).forEach(el => {
+      try { if (window.gsap) gsap.set(el, {clearProps:'all'}); } catch(e){}
+      el.classList.add('in');
+      el.style.opacity='1'; el.style.transform='none'; el.style.filter='none';
     });
-    try { if (window.ScrollTrigger) ScrollTrigger.refresh(); } catch(e){}
-  }, 600);
+  }, 300);
 });
 
 </script>
