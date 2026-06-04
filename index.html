@@ -23,6 +23,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{color-scheme:dark;
@@ -45,7 +46,24 @@
   --ease-inout:cubic-bezier(0.77,0,0.175,1);
 }
 html{scroll-behavior:smooth}
-body{background:var(--black);color:var(--white);font-family:var(--mono);font-weight:300;overflow-x:hidden;cursor:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+body{background:var(--black);color:var(--white);font-family:var(--mono);font-weight:300;overflow-x:hidden;cursor:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased}
+
+/* PRELOADER */
+#preloader{position:fixed;inset:0;z-index:10000;background:#080807;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2rem}
+.pl-logo{font-family:'Syne',sans-serif;font-size:clamp(4rem,12vw,9rem);font-weight:800;letter-spacing:-.04em;color:#f0ece4}
+.pl-logo span{color:#c13a24}
+.pl-bar{width:60px;height:1px;background:rgba(240,236,228,.15);overflow:hidden}
+.pl-fill{height:100%;width:0;background:#c13a24;animation:pl-load .7s ease forwards .1s}
+@keyframes pl-load{to{width:100%}}
+
+/* SELECTION */
+::selection{background:rgba(193,58,36,.28);color:var(--white)}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:var(--black)}
+::-webkit-scrollbar-thumb{background:rgba(193,58,36,.35);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:rgba(193,58,36,.65)}
 
 /* GRAIN NOISE OVERLAY */
 .grain{position:fixed;inset:0;z-index:9990;pointer-events:none;opacity:.032;
@@ -65,11 +83,26 @@ body{background:var(--black);color:var(--white);font-family:var(--mono);font-wei
 a:focus-visible,button:focus-visible,[role="button"]:focus-visible{outline:2px solid var(--red);outline-offset:3px}
 .f-inp:focus-visible{outline:none;border-bottom-color:var(--red)}
 
+/* MOBILE DRAWER */
+.nav-burger{display:none;flex-direction:column;justify-content:center;gap:5px;width:38px;height:38px;background:transparent;border:1px solid rgba(240,236,228,.1);cursor:none;padding:8px;flex-shrink:0;transition:border-color .25s}
+.nav-burger:hover{border-color:rgba(240,236,228,.25)}
+.burger-line{width:100%;height:1px;background:var(--white);transform-origin:center;transition:transform .3s var(--ease-out),opacity .3s}
+.nav-burger.open .burger-line:nth-child(1){transform:translateY(6px) rotate(45deg)}
+.nav-burger.open .burger-line:nth-child(2){opacity:0;transform:scaleX(0)}
+.nav-burger.open .burger-line:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+#mobile-drawer{position:fixed;inset:0;z-index:590;background:rgba(8,8,7,.98);backdrop-filter:blur(20px);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:2rem;transform:translateY(-100%);visibility:hidden;transition:transform .55s var(--ease-drawer),visibility .55s}
+#mobile-drawer.open{transform:translateY(0);visibility:visible}
+.mob-link{font-family:var(--syne);font-size:clamp(1.8rem,8vw,3.2rem);font-weight:700;letter-spacing:-.03em;color:rgba(240,236,228,.35);text-decoration:none;transition:color .25s;line-height:1}
+.mob-link:hover{color:var(--white)}
+.mob-cta{font-family:var(--mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--black);background:var(--red);padding:.9rem 2.4rem;text-decoration:none;margin-top:1rem;transition:background .25s}
+.mob-cta:hover{background:var(--red2)}
+
 /* REDUCED MOTION */
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
   html{scroll-behavior:auto}
   #cur,#cur-r{display:none}
+  .gallery-cin-img{transform:none!important}
 }
 
 /* CURSOR */
@@ -97,18 +130,18 @@ nav.scrolled{background:rgba(8,8,7,.85);box-shadow:0 1px 0 rgba(255,255,255,.06)
 .nav-aie span{color:var(--red)}
 .nav-sub{font-family:var(--mono);font-size:.5rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
 .nav-links{display:flex;gap:2.5rem;list-style:none}
-.nav-links a{font-family:var(--mono);font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .3s}
+.nav-links a{font-family:var(--mono);font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .3s cubic-bezier(.16,1,.3,1);position:relative;padding-bottom:2px;padding-left:.3rem;padding-right:.3rem}
 .nav-links a:hover{color:var(--white)}
-.nav-cta{font-family:var(--mono);font-size:.54rem;letter-spacing:.14em;text-transform:uppercase;color:var(--black);background:var(--red);padding:.52rem 1.2rem;text-decoration:none;border-radius:9999px;transition:background .25s var(--ease-out),transform .25s var(--ease-out)}
-.nav-cta:hover{background:var(--red2);transform:scale(1.03)}
-.nav-cta:active{transform:scale(0.97)}
+.nav-cta{font-family:var(--mono);font-size:.54rem;letter-spacing:.14em;text-transform:uppercase;color:var(--black);background:var(--red);padding:.52rem 1.2rem;text-decoration:none;border-radius:9999px;font-weight:600;transition:background .3s var(--ease-out),transform .25s var(--ease-out),box-shadow .3s var(--ease-out);box-shadow:0 4px 12px rgba(193,58,36,.25)}
+.nav-cta:hover{background:var(--red2);transform:scale(1.05);box-shadow:0 8px 24px rgba(193,58,36,.4)}
+.nav-cta:active{transform:scale(0.96);filter:brightness(0.92)}
 
 /* HERO */
-#hero{height:100vh;position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;overflow:hidden;text-align:center}
+#hero{min-height:100svh;position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;overflow:hidden;text-align:center}
 .hero-noise{position:absolute;inset:0;opacity:.04;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:200px}
 .hero-grid{position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 79px,rgba(193,58,36,.05) 80px),repeating-linear-gradient(90deg,transparent,transparent 79px,rgba(193,58,36,.05) 80px)}
 .hero-content{position:relative;z-index:2}
-.aie-logo-hero{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:1.5rem;opacity:0;animation:fadeIn .8s .1s ease forwards}
+.aie-logo-hero{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:1.5rem;opacity:0;animation:fadeIn .8s .1s cubic-bezier(.16,1,.3,1) forwards}
 .aie-letter{font-family:var(--syne);font-weight:800;font-size:clamp(5rem,16vw,14rem);line-height:.85;letter-spacing:-.04em;color:var(--white);display:inline-block;transition:color .3s,transform .3s}
 .aie-letter:hover{color:var(--red);transform:translateY(-4px)}
 .aie-letter.red{color:var(--red)}
@@ -116,13 +149,13 @@ nav.scrolled{background:rgba(8,8,7,.85);box-shadow:0 1px 0 rgba(255,255,255,.06)
 .aie-right{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:.5rem;opacity:0;animation:fadeIn .6s .5s ease forwards}
 .aie-studio{font-family:var(--syne);font-size:clamp(.8rem,2vw,1.7rem);font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:var(--white);line-height:1}
 .aie-arq{font-family:var(--mono);font-size:clamp(.42rem,.9vw,.7rem);letter-spacing:.22em;text-transform:uppercase;color:var(--red)}
-.hero-tagline{font-family:var(--serif);font-style:italic;font-size:clamp(.9rem,2vw,1.45rem);color:var(--muted);margin-bottom:2.5rem;opacity:0;animation:fadeIn .8s .6s ease forwards}
+.hero-tagline{font-family:var(--serif);font-style:italic;font-size:clamp(.9rem,2vw,1.45rem);color:var(--muted);margin-bottom:2.5rem;opacity:0;animation:fadeIn .8s .6s cubic-bezier(.16,1,.3,1) forwards;letter-spacing:.02em}
 
-.hero-cta-row{display:flex;gap:1rem;justify-content:center;opacity:0;animation:fadeIn .8s .9s ease forwards}
-.btn-r{font-family:var(--mono);font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--black);background:var(--red);padding:.85rem 2rem;text-decoration:none;display:inline-block;
-  transition:background .25s var(--ease-out),transform .2s var(--ease-out),box-shadow .25s var(--ease-out)}
-.btn-r:hover{background:var(--red2);transform:scale(1.03);box-shadow:0 4px 24px rgba(193,58,36,.35)}
-.btn-r:active{transform:scale(0.97)}
+.hero-cta-row{display:flex;gap:1rem;justify-content:center;opacity:0;animation:fadeIn .8s .9s cubic-bezier(.16,1,.3,1) forwards}
+.btn-r{font-family:var(--mono);font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--black);background:var(--red);padding:.85rem 2rem;text-decoration:none;display:inline-block;font-weight:600;
+  transition:background .3s var(--ease-out),transform .25s var(--ease-out),box-shadow .3s var(--ease-out)}
+.btn-r:hover{background:var(--red2);transform:scale(1.04);box-shadow:0 12px 48px rgba(193,58,36,.55),0 0 20px rgba(193,58,36,.4)}
+.btn-r:active{transform:scale(0.97);filter:brightness(0.92)}
 .btn-o{font-family:var(--mono);font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);border:1px solid rgba(240,236,228,.13);padding:.85rem 2rem;text-decoration:none;display:inline-block;
   transition:border-color .25s var(--ease-out),color .25s var(--ease-out),transform .2s var(--ease-out)}
 .btn-o:hover{border-color:var(--white);color:var(--white);transform:scale(1.03)}
@@ -131,15 +164,14 @@ nav.scrolled{background:rgba(8,8,7,.85);box-shadow:0 1px 0 rgba(255,255,255,.06)
 .scroll-bar{width:1px;height:46px;background:linear-gradient(to bottom,var(--red),transparent);animation:pulse 2s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
 
-/* STATS */
-.stats-bar{background:var(--red);display:flex;justify-content:center;position:relative}
-.stats-bar::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.08) 0%,transparent 50%,rgba(0,0,0,.08) 100%);pointer-events:none}
-.stat-item{flex:1;text-align:center;padding:1.7rem 1rem;border-right:1px solid rgba(8,8,7,.12);transition:background .25s var(--ease-out),transform .25s var(--ease-out);position:relative;overflow:hidden}
-.stat-item:last-child{border-right:none}
-.stat-item:hover{background:var(--red2);transform:translateY(-1px)}
-.stat-item:active{transform:translateY(0)}
-.stat-n{font-family:var(--syne);font-size:1.9rem;font-weight:800;color:var(--black);line-height:1;letter-spacing:-.03em}
-.stat-l{font-family:var(--mono);font-size:.46rem;letter-spacing:.15em;text-transform:uppercase;color:rgba(8,8,7,.45);margin-top:.25rem}
+/* MANIFESTO STRIP (reemplaza stats bar genérica) */
+.manifesto-strip{background:var(--red);overflow:hidden;position:relative;padding:1.4rem 3rem;display:flex;align-items:center;justify-content:space-between;gap:3rem;box-shadow:0 8px 32px rgba(193,58,36,.3);transition:box-shadow .4s cubic-bezier(.16,1,.3,1)}
+.manifesto-strip::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent,transparent 199px,rgba(8,8,7,.06) 200px);pointer-events:none}
+.manifesto-claim{font-family:var(--syne);font-size:clamp(.9rem,2vw,1.35rem);font-weight:700;letter-spacing:-.02em;color:var(--black);line-height:1.1}
+.manifesto-claim em{font-family:var(--serif);font-style:italic;font-weight:400;opacity:.65}
+.manifesto-tags{display:flex;gap:1rem;flex-wrap:wrap;flex-shrink:0}
+.mtag{font-family:var(--mono);font-size:.5rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(8,8,7,.5);border:1px solid rgba(8,8,7,.15);padding:.28rem .7rem}
+@media(max-width:900px){.manifesto-strip{flex-direction:column;align-items:flex-start;gap:1rem;padding:1.4rem 1.5rem}.manifesto-tags{display:none}}
 
 /* PROJECTS */
 #projects{background:var(--black)}
@@ -151,8 +183,8 @@ nav.scrolled{background:rgba(8,8,7,.85);box-shadow:0 1px 0 rgba(255,255,255,.06)
 
 /* TABS */
 .cat-tabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:rgba(240,236,228,.05);border:1px solid rgba(240,236,228,.05);margin:3rem 3rem 0;position:sticky;top:75px;z-index:100}
-.cat-btn{background:var(--black);border:none;cursor:none;padding:1.3rem 1rem;display:flex;flex-direction:column;align-items:center;gap:.4rem;transition:background .25s;position:relative;overflow:hidden}
-.cat-btn::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:transparent;transition:background .25s}
+.cat-btn{background:var(--black);border:none;cursor:none;padding:1.3rem 1rem;min-height:44px;display:flex;flex-direction:column;align-items:center;gap:.4rem;transition:background .3s cubic-bezier(.16,1,.3,1);position:relative;overflow:hidden}
+.cat-btn::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:transparent;transition:background .3s cubic-bezier(.16,1,.3,1)}
 .cat-btn.active::after,.cat-btn:hover::after{background:var(--accent)}
 .cat-btn.active,.cat-btn:hover{background:rgba(240,236,228,.02)}
 .cat-btn[data-cat="arq"]{--accent:var(--cat-arq)}
@@ -193,14 +225,14 @@ nav.scrolled{background:rgba(8,8,7,.85);box-shadow:0 1px 0 rgba(255,255,255,.06)
 /* PROJECT CARDS — pantalla completa */
 .pc{position:relative;height:88vh;overflow:hidden;cursor:none}
 .pc+.pc{margin-top:4px}
-.pv{width:100%;height:100%;position:relative;transition:transform .9s var(--ease-out)}
-.pc:hover .pv{transform:scale(1.028)}
+.pv{width:100%;height:100%;position:relative;transition:transform 1s cubic-bezier(.16,1,.3,1)}
+.pc:hover .pv{transform:scale(1.035)}
 .pv{will-change:transform}
 .p-bg{width:100%;height:100%;position:absolute;inset:0}
 .p-gl{position:absolute;inset:0;pointer-events:none;background-image:repeating-linear-gradient(0deg,transparent,transparent 59px,rgba(193,58,36,.04) 60px),repeating-linear-gradient(90deg,transparent,transparent 59px,rgba(193,58,36,.04) 60px)}
 .p-arch{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
 .p-arch svg{opacity:.07}
-.p-grad{position:absolute;inset:0;background:linear-gradient(to top,rgba(8,8,7,.96) 0%,rgba(8,8,7,.2) 50%,transparent 100%)}
+.p-grad{position:absolute;inset:0;background:linear-gradient(to top,rgba(8,8,7,.96) 0%,rgba(8,8,7,.2) 50%,transparent 100%);transition:background .8s cubic-bezier(.16,1,.3,1)}
 .p-grad-l{position:absolute;inset:0;background:linear-gradient(to right,rgba(8,8,7,.55) 0%,transparent 60%)}
 .p-info{position:absolute;bottom:0;left:0;right:0;padding:2.8rem 3rem;display:grid;grid-template-columns:1fr auto;gap:2rem;align-items:flex-end}
 .p-num{font-family:var(--mono);font-size:.47rem;letter-spacing:.2em;color:var(--cat-arq);margin-bottom:.55rem}
@@ -221,15 +253,15 @@ nav.scrolled{background:rgba(8,8,7,.85);box-shadow:0 1px 0 rgba(255,255,255,.06)
 /* VER PROYECTO BUTTON — aparece en hover */
 .p-ver-btn{
   opacity:0;transform:translateY(12px);
-  transition:opacity .35s var(--ease-out),transform .35s var(--ease-out),background .2s var(--ease-out),scale .2s var(--ease-out);
-  font-family:var(--mono);font-size:.56rem;letter-spacing:.15em;text-transform:uppercase;
+  transition:opacity .4s var(--ease-out),transform .4s var(--ease-out),background .2s var(--ease-out),box-shadow .3s var(--ease-out);
+  font-family:var(--mono);font-size:.56rem;letter-spacing:.15em;text-transform:uppercase;font-weight:600;
   color:var(--black);background:var(--red);
   padding:.75rem 1.6rem;border:none;cursor:none;
   display:flex;align-items:center;gap:.6rem;
-  white-space:nowrap;align-self:flex-end;
+  white-space:nowrap;align-self:flex-end;box-shadow:0 4px 16px rgba(193,58,36,.2);
 }
-.pc:hover .p-ver-btn{opacity:1;transform:translateY(0)}
-.p-desc-h{font-family:var(--mono);font-size:.62rem;color:rgba(240,236,228,.48);line-height:1.72;max-width:280px;text-align:right;opacity:0;transform:translateY(10px);transition:opacity .35s .05s,transform .35s .05s}
+.pc:hover .p-ver-btn{opacity:1;transform:translateY(0);box-shadow:0 8px 32px rgba(193,58,36,.45)}
+.p-desc-h{font-family:var(--mono);font-size:.62rem;color:rgba(240,236,228,.68);line-height:1.72;max-width:280px;text-align:right;opacity:0;transform:translateY(10px);transition:opacity .4s .08s cubic-bezier(.16,1,.3,1),transform .4s .08s cubic-bezier(.16,1,.3,1),color .35s}
 .pc:hover .p-desc-h{opacity:1;transform:translateY(0)}
 
 .pgrid2{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:4px}
@@ -263,7 +295,7 @@ nav.scrolled{background:rgba(8,8,7,.85);box-shadow:0 1px 0 rgba(255,255,255,.06)
 .uni-desc{font-family:var(--mono);font-size:.6rem;color:var(--muted);line-height:1.7;flex:1}
 .uni-award{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--mono);font-size:.46rem;letter-spacing:.1em;text-transform:uppercase;border:1px solid rgba(74,124,111,.4);color:var(--cat-uni);padding:.26rem .68rem;margin-top:1rem;width:fit-content}
 .uni-meta{font-family:var(--mono);font-size:.52rem;color:rgba(240,236,228,.18);margin-top:.45rem}
-.uni-ver-btn{font-family:var(--mono);font-size:.5rem;letter-spacing:.12em;text-transform:uppercase;color:var(--cat-uni);border:1px solid rgba(74,124,111,.3);padding:.5rem 1rem;background:transparent;cursor:none;margin-top:1.2rem;width:fit-content;transition:background .25s,color .25s;display:flex;align-items:center;gap:.5rem}
+.uni-ver-btn{font-family:var(--mono);font-size:.5rem;letter-spacing:.12em;text-transform:uppercase;color:var(--cat-uni);border:1px solid rgba(74,124,111,.3);padding:.7rem 1.2rem;background:transparent;cursor:none;margin-top:1.2rem;width:fit-content;transition:background .25s,color .25s;display:flex;align-items:center;gap:.5rem;min-height:44px}
 .uni-card:hover .uni-ver-btn{background:var(--cat-uni);color:var(--black)}
 
 /* INT CARDS */
@@ -310,93 +342,264 @@ nav.scrolled{background:rgba(8,8,7,.85);box-shadow:0 1px 0 rgba(255,255,255,.06)
 .bgi6{background:linear-gradient(145deg,#0e0c08,#16140e)}
 
 /* ═══════════════════════════════════════
-   PROJECT DETAIL — overlay pantalla completa
+   PROJECT DETAIL — cinematic editorial
 ═══════════════════════════════════════ */
 #proj-detail{
   position:fixed;inset:0;z-index:800;
-  background:var(--black);
+  background:#080807;
   overflow-y:auto;
   overscroll-behavior:contain;
   transform:translateY(100%);
-  transition:transform .6s cubic-bezier(.16,1,.3,1);
+  transition:transform .7s cubic-bezier(.16,1,.3,1);
   visibility:hidden;
 }
 #proj-detail.open{transform:translateY(0);visibility:visible}
 
-/* Close btn */
+/* Progress bar */
+.detail-progress{position:fixed;top:0;left:0;width:0%;height:2px;background:#c13a24;z-index:910;transition:width .1s linear}
+
+/* Close */
 .detail-close{
-  position:fixed;top:2rem;right:3rem;z-index:900;
-  width:48px;height:48px;
-  background:rgba(8,8,7,.8);border:1px solid rgba(240,236,228,.15);
+  position:fixed;top:2rem;right:2.5rem;z-index:910;
+  width:44px;height:44px;border-radius:50%;
+  background:rgba(8,8,7,.9);border:1px solid rgba(240,236,228,.1);
   display:flex;align-items:center;justify-content:center;
-  cursor:none;transition:background .25s,border-color .25s;backdrop-filter:blur(8px);
+  cursor:none;transition:background .25s,border-color .25s;backdrop-filter:blur(16px);
 }
-.detail-close:hover{background:var(--red);border-color:var(--red)}
-.detail-close svg{width:16px;height:16px;stroke:var(--white);stroke-width:2;fill:none}
+.detail-close:hover{background:#c13a24;border-color:#c13a24}
+.detail-close svg{width:14px;height:14px;stroke:#f0ece4;stroke-width:2;fill:none}
 
-/* Detail hero */
-.detail-hero{
-  height:70vh;position:relative;overflow:hidden;
+/* Counter */
+.detail-counter{
+  position:fixed;bottom:2rem;left:2.5rem;z-index:910;
+  font-family:'DM Mono',monospace;font-size:max(.5rem,11px);letter-spacing:.18em;
+  color:rgba(240,236,228,.22);background:rgba(8,8,7,.7);
+  backdrop-filter:blur(8px);padding:.4rem .8rem;
+  border:1px solid rgba(240,236,228,.06);
+}
+
+/* HERO — full viewport */
+.detail-hero{height:100svh;position:relative;overflow:hidden;display:flex;align-items:flex-end}
+.detail-hero-bg{
+  position:absolute;inset:0;
+  background-size:cover;background-position:center;
+  transform:scale(1.08);
+  transition:transform 1.4s cubic-bezier(.16,1,.3,1);
+}
+#proj-detail.open .detail-hero-bg{transform:scale(1)}
+.detail-hero-grad{position:absolute;inset:0;background:linear-gradient(to top,#080807 0%,rgba(8,8,7,.6) 35%,rgba(8,8,7,.1) 100%)}
+.detail-hero-content{position:relative;z-index:2;padding:0 4vw 4rem;width:100%}
+
+/* Title — editorial, dominante */
+.detail-cat-label{
+  font-family:'DM Mono',monospace;font-size:max(.52rem,11px);letter-spacing:.22em;
+  text-transform:uppercase;color:#c13a24;margin-bottom:1.5rem;
+  display:flex;align-items:center;gap:1rem;
+  opacity:0;transform:translateY(12px);
+  transition:opacity .6s .3s,transform .6s .3s cubic-bezier(.16,1,.3,1);
+}
+#proj-detail.open .detail-cat-label{opacity:1;transform:translateY(0)}
+.detail-cat-label::before{content:'';width:32px;height:1px;background:#c13a24}
+
+.detail-title{
+  font-family:'Syne',sans-serif;
+  font-size:clamp(3.5rem,8vw,8rem);
+  font-weight:700;letter-spacing:-.04em;line-height:.9;
+  margin-bottom:1.8rem;
+  opacity:0;transform:translateY(32px);
+  transition:opacity .8s .45s,transform .8s .45s cubic-bezier(.16,1,.3,1);
+}
+#proj-detail.open .detail-title{opacity:1;transform:translateY(0)}
+.detail-title em{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;color:rgba(240,236,228,.45)}
+
+.detail-tags-row{
+  display:flex;gap:.5rem;flex-wrap:wrap;
+  opacity:0;transform:translateY(10px);
+  transition:opacity .6s .65s,transform .6s .65s cubic-bezier(.16,1,.3,1);
+}
+#proj-detail.open .detail-tags-row{opacity:1;transform:translateY(0)}
+.detail-tag{
+  font-family:'DM Mono',monospace;font-size:max(.46rem,11px);letter-spacing:.1em;
+  text-transform:uppercase;border:1px solid rgba(240,236,228,.15);
+  color:rgba(240,236,228,.45);padding:.22rem .65rem;
+}
+
+.detail-scroll-cue{
+  position:absolute;bottom:2.5rem;right:4vw;z-index:2;
+  font-family:'DM Mono',monospace;font-size:max(.44rem,10px);letter-spacing:.18em;
+  text-transform:uppercase;color:rgba(240,236,228,.2);
+  display:flex;align-items:center;gap:.6rem;
+  opacity:0;transition:opacity .6s .9s;
+}
+#proj-detail.open .detail-scroll-cue{opacity:1}
+.detail-scroll-cue::after{content:'';display:block;width:1px;height:48px;background:linear-gradient(to bottom,rgba(193,58,36,.5),transparent);animation:scue 2s ease-in-out infinite}
+@keyframes scue{0%,100%{transform:scaleY(1);transform-origin:top}50%{transform:scaleY(1.3);transform-origin:top}}
+
+/* DESCRIPCIÓN — editorial, amplio */
+.detail-intro{
+  max-width:900px;margin:0 auto;
+  padding:8vw 4vw;
+}
+.detail-intro-num{
+  font-family:'DM Mono',monospace;font-size:max(.48rem,11px);letter-spacing:.2em;
+  color:rgba(193,58,36,.5);margin-bottom:3rem;
+}
+.detail-desc-text{
+  font-family:'Syne',sans-serif;
+  font-size:clamp(1.1rem,2.2vw,1.6rem);
+  font-weight:400;line-height:1.65;
+  color:rgba(240,236,228,.78);
+  letter-spacing:-.01em;
+}
+.detail-desc-text p{margin-bottom:1.4em}
+.detail-desc-text p:first-child{
+  font-size:clamp(1.3rem,2.8vw,2rem);
+  color:rgba(240,236,228,.9);
+  line-height:1.45;
+  margin-bottom:1.8em;
+}
+.detail-desc-text strong{color:#f0ece4;font-weight:600}
+
+/* FICHA — franja horizontal elegante */
+.detail-ficha-strip{
+  border-top:1px solid rgba(240,236,228,.07);
+  border-bottom:1px solid rgba(240,236,228,.07);
+  display:flex;flex-wrap:wrap;
+  margin:0;padding:0 4vw;
+}
+.ficha-cell{
+  flex:1;min-width:160px;
+  padding:1.8rem 2rem 1.8rem 0;
+  border-right:1px solid rgba(240,236,228,.06);
+}
+.ficha-cell:last-child{border-right:none}
+.ficha-label{
+  font-family:'DM Mono',monospace;font-size:max(.5rem,11px);letter-spacing:.14em;
+  text-transform:uppercase;color:rgba(240,236,228,.25);
+  display:block;margin-bottom:.5rem;
+}
+.ficha-value{
+  font-family:'Syne',sans-serif;font-size:clamp(.85rem,1.2vw,1rem);
+  font-weight:600;color:rgba(240,236,228,.82);letter-spacing:-.01em;
+}
+
+/* GALERÍA — imágenes cinematográficas */
+.detail-gallery-wrap{margin:6vw 0}
+.gallery-cin-item{
+  position:relative;overflow:hidden;margin-bottom:4px;
+  background:#131210;
+}
+.gallery-cin-item.size-full{height:75vh}
+.gallery-cin-item.size-tall{height:85vh}
+.gallery-cin-item.size-half{height:55vh}
+.gallery-cin-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:4px}
+.gallery-cin-grid .gallery-cin-item{height:55vh}
+.gallery-cin-img{
+  width:100%;height:100%;object-fit:cover;display:block;
+  transform:scale(1.04);transition:transform 6s cubic-bezier(.16,1,.3,1),filter .6s cubic-bezier(.16,1,.3,1);
+}
+.gallery-cin-item:hover .gallery-cin-img{
+  transform:scale(1.08);
+}
+.gallery-cin-item.in-view .gallery-cin-img{transform:scale(1)}
+.gallery-cin-ph{
+  width:100%;height:100%;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:1.5rem;
+  background:linear-gradient(145deg,#131210,#1c1a14);
+}
+.gallery-cin-ph-icon{
+  width:80px;height:80px;border:1px solid rgba(193,58,36,.15);
+  display:flex;align-items:center;justify-content:center;
+}
+.gallery-cin-ph-icon svg{opacity:.2}
+.gallery-cin-ph-label{
+  font-family:'DM Mono',monospace;font-size:max(.55rem,11px);letter-spacing:.12em;
+  text-transform:uppercase;color:rgba(240,236,228,.2);text-align:center;padding:0 2rem;
+}
+.gallery-cin-cap{
+  position:absolute;bottom:1.5rem;left:4vw;
+  font-family:'DM Mono',monospace;font-size:max(.48rem,10px);
+  color:rgba(240,236,228,.35);letter-spacing:.08em;
+  opacity:0;transform:translateY(6px);
+  transition:opacity .4s,transform .4s;
+}
+.gallery-cin-item:hover .gallery-cin-cap{opacity:1;transform:translateY(0)}
+.gallery-cin-num{
+  position:absolute;top:1.5rem;right:4vw;
+  font-family:'DM Mono',monospace;font-size:max(.44rem,10px);
+  color:rgba(240,236,228,.2);letter-spacing:.1em;
+}
+
+/* EQUIPO */
+.detail-team-wrap{
+  max-width:900px;margin:0 auto;
+  padding:5vw 4vw;
+  border-top:1px solid rgba(240,236,228,.06);
+}
+.detail-team-label{
+  font-family:'DM Mono',monospace;font-size:max(.5rem,11px);letter-spacing:.2em;
+  text-transform:uppercase;color:#c13a24;margin-bottom:2rem;
+}
+.team-row{
+  display:flex;align-items:center;gap:1.5rem;
+  padding:1.2rem 0;border-bottom:1px solid rgba(240,236,228,.05);
+}
+.team-av{
+  width:44px;height:44px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-size:.78rem;font-weight:700;flex-shrink:0;
+}
+.team-nm{font-family:'Syne',sans-serif;font-size:1rem;font-weight:600;color:#f0ece4;margin-bottom:.15rem}
+.team-rl{font-family:'DM Mono',monospace;font-size:max(.55rem,11px);color:rgba(240,236,228,.3);letter-spacing:.05em}
+
+/* PRÓXIMO PROYECTO — teaser */
+.detail-next-project{
+  position:relative;overflow:hidden;height:60vh;
   display:flex;align-items:flex-end;
+  cursor:none;margin-top:4px;
 }
-.detail-hero-bg{width:100%;height:100%;position:absolute;inset:0}
-.detail-hero-bg svg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);opacity:.08}
-.detail-hero-gl{position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 79px,rgba(193,58,36,.04) 80px),repeating-linear-gradient(90deg,transparent,transparent 79px,rgba(193,58,36,.04) 80px)}
-.detail-hero-grad{position:absolute;inset:0;background:linear-gradient(to top,rgba(8,8,7,1) 0%,rgba(8,8,7,.4) 50%,transparent 100%)}
-.detail-hero-content{position:relative;z-index:2;padding:3rem;width:100%}
-.detail-breadcrumb{font-family:var(--mono);font-size:.52rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:1rem;display:flex;align-items:center;gap:.6rem}
-.detail-breadcrumb span{color:var(--red)}
-.detail-title{font-family:var(--syne);font-size:clamp(2.5rem,6vw,6rem);font-weight:700;letter-spacing:-.03em;line-height:.9;margin-bottom:1rem}
-.detail-title em{font-family:var(--serif);font-style:italic;font-weight:400;color:var(--red)}
-.detail-tags-row{display:flex;gap:.6rem;flex-wrap:wrap}
-.detail-tag{font-family:var(--mono);font-size:.48rem;letter-spacing:.12em;text-transform:uppercase;border:1px solid rgba(193,58,36,.35);color:var(--red);padding:.22rem .6rem}
+.detail-next-bg{
+  position:absolute;inset:0;background-size:cover;background-position:center;
+  transform:scale(1.06);transition:transform .8s cubic-bezier(.16,1,.3,1);
+}
+.detail-next-project:hover .detail-next-bg{transform:scale(1)}
+.detail-next-grad{position:absolute;inset:0;background:linear-gradient(to top,rgba(8,8,7,.95) 0%,rgba(8,8,7,.3) 60%,transparent 100%)}
+.detail-next-content{position:relative;z-index:2;padding:3rem 4vw;width:100%}
+.detail-next-eyebrow{
+  font-family:'DM Mono',monospace;font-size:max(.5rem,11px);letter-spacing:.2em;
+  text-transform:uppercase;color:rgba(240,236,228,.3);margin-bottom:.8rem;
+}
+.detail-next-title{
+  font-family:'Syne',sans-serif;font-size:clamp(2rem,5vw,4.5rem);
+  font-weight:700;letter-spacing:-.03em;line-height:.95;color:#f0ece4;
+  transition:color .3s;
+}
+.detail-next-project:hover .detail-next-title{color:#c13a24}
+.detail-next-title em{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;color:rgba(240,236,228,.4)}
+.detail-next-arrow{
+  position:absolute;top:2.5rem;right:4vw;z-index:2;
+  width:48px;height:48px;border:1px solid rgba(240,236,228,.12);
+  display:flex;align-items:center;justify-content:center;
+  transition:background .3s,border-color .3s,transform .4s cubic-bezier(.16,1,.3,1);
+}
+.detail-next-project:hover .detail-next-arrow{background:#c13a24;border-color:#c13a24;transform:translate(4px,-4px)}
+.detail-next-arrow svg{width:18px;height:18px;stroke:#f0ece4;stroke-width:1.5;fill:none}
 
-/* Detail body */
-.detail-body{max-width:1400px;margin:0 auto;padding:4rem 3rem 6rem;display:grid;grid-template-columns:1fr 1fr;gap:5rem}
+/* Reveal */
+.d-reveal{opacity:0;transform:translateY(40px);transition:opacity .9s cubic-bezier(.16,1,.3,1),transform .9s cubic-bezier(.16,1,.3,1)}
+.d-reveal.in{opacity:1;transform:translateY(0)}
 
-/* Descripción */
-.detail-desc-col{}
-.detail-section-label{font-family:var(--mono);font-size:.5rem;letter-spacing:.2em;text-transform:uppercase;color:var(--red);margin-bottom:1.2rem}
-.detail-desc-text{font-family:var(--syne);font-size:clamp(.95rem,1.5vw,1.25rem);font-weight:400;line-height:1.7;color:rgba(240,236,228,.8);letter-spacing:-.01em;margin-bottom:2.5rem}
-.detail-desc-text strong{color:var(--white);font-weight:600}
-
-/* Ficha técnica */
-.detail-ficha{border-top:1px solid rgba(240,236,228,.07);margin-top:.5rem}
-.ficha-row{display:grid;grid-template-columns:1fr 1fr;padding:.9rem 0;border-bottom:1px solid rgba(240,236,228,.05)}
-.ficha-label{font-family:var(--mono);font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(240,236,228,.28)}
-.ficha-value{font-family:var(--mono);font-size:.62rem;color:rgba(240,236,228,.7);letter-spacing:.03em}
-
-/* Equipo */
-.detail-team{margin-top:3rem}
-.team-grid{display:flex;flex-direction:column;gap:0;margin-top:1rem}
-.team-member{display:flex;align-items:center;gap:1.2rem;padding:1rem 0;border-bottom:1px solid rgba(240,236,228,.05)}
-.team-avatar{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--syne);font-size:.75rem;font-weight:700;flex-shrink:0}
-.team-info{}
-.team-name{font-family:var(--syne);font-size:.95rem;font-weight:600;color:var(--white);margin-bottom:.15rem}
-.team-role{font-family:var(--mono);font-size:.55rem;color:rgba(240,236,228,.35);letter-spacing:.06em}
-
-/* Galería */
-.detail-gallery-col{}
-.gallery-main{width:100%;aspect-ratio:4/3;position:relative;overflow:hidden;margin-bottom:1px;background:var(--gray2)}
-.gallery-main-bg{width:100%;height:100%;display:flex;align-items:center;justify-content:center}
-.gallery-main-bg svg{opacity:.1}
-.gallery-thumbs{display:grid;grid-template-columns:repeat(4,1fr);gap:1px}
-.gallery-thumb{aspect-ratio:1;position:relative;overflow:hidden;cursor:none;background:var(--gray)}
-.gallery-thumb.active{outline:2px solid var(--red)}
-.gallery-thumb-bg{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.5rem;color:rgba(240,236,228,.2);transition:transform .4s ease}
-.gallery-thumb:hover .gallery-thumb-bg{transform:scale(1.06)}
-.gallery-add-label{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:.4rem;height:100%;font-family:var(--mono);font-size:.44rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(240,236,228,.18);text-align:center;padding:.5rem}
-
-/* Nota de imágenes */
-.gallery-note{font-family:var(--mono);font-size:.55rem;color:rgba(240,236,228,.2);line-height:1.65;margin-top:1.2rem;padding:1rem;border:1px solid rgba(240,236,228,.07);background:rgba(240,236,228,.02)}
-.gallery-note strong{color:rgba(240,236,228,.5);font-weight:400}
-
-/* Nav proyectos dentro del detalle */
-.detail-nav{display:flex;justify-content:space-between;align-items:center;padding:2rem 3rem;border-top:1px solid rgba(240,236,228,.06);margin-top:2rem}
-.detail-nav-btn{font-family:var(--mono);font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:transparent;border:1px solid rgba(240,236,228,.1);padding:.7rem 1.4rem;cursor:none;transition:border-color .25s,color .25s;display:flex;align-items:center;gap:.6rem}
-.detail-nav-btn:hover{border-color:var(--red);color:var(--white)}
-.detail-nav-back{font-family:var(--mono);font-size:.5rem;letter-spacing:.12em;text-transform:uppercase;color:var(--red);cursor:none;background:transparent;border:none;display:flex;align-items:center;gap:.5rem}
-.detail-nav-back:hover{color:var(--white)}
+@media(max-width:900px){
+  .detail-hero-content{padding:0 1.5rem 3rem}
+  .detail-intro,.detail-team-wrap{padding-left:1.5rem;padding-right:1.5rem}
+  .detail-ficha-strip{padding:0 1.5rem}
+  .ficha-cell{min-width:140px;padding:1.4rem 1.5rem 1.4rem 0}
+  .gallery-cin-item.size-full,.gallery-cin-item.size-tall{height:55vw;min-height:240px}
+  .gallery-cin-item.size-half,.gallery-cin-grid .gallery-cin-item{height:50vw;min-height:200px}
+  .gallery-cin-grid{grid-template-columns:1fr}
+  .detail-next-project{height:45vh}
+  .detail-title{font-size:clamp(2.5rem,10vw,5rem)}
+}
 
 /* ABOUT */
 #about{min-height:100vh;display:grid;grid-template-columns:1fr 1fr}
@@ -423,7 +626,7 @@ nav.scrolled{background:rgba(8,8,7,.85);box-shadow:0 1px 0 rgba(255,255,255,.06)
 .aw-txt strong{color:rgba(240,236,228,.65);font-weight:400}
 .skills-row{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:2rem}
 .skill{font-family:var(--mono);font-size:.46rem;letter-spacing:.1em;text-transform:uppercase;border:1px solid rgba(240,236,228,.08);color:var(--muted);padding:.24rem .6rem;transition:border-color .25s,color .25s}
-.skill:hover{border-color:var(--red);color:var(--white)}
+.skill:hover{border-color:var(--red);color:var(--white);transform:translateY(-1px)}.skill{transition:border-color .25s,color .25s,transform .2s cubic-bezier(0.23,1,0.32,1)}
 
 /* EXPERIENCE */
 #experience{padding:8rem 3rem;background:var(--gray)}
@@ -433,7 +636,7 @@ nav.scrolled{background:rgba(8,8,7,.85);box-shadow:0 1px 0 rgba(255,255,255,.06)
 .exp-ttl em{font-family:var(--serif);font-style:italic;font-weight:400;color:var(--muted)}
 .exp-item{display:grid;grid-template-columns:190px 1fr auto;gap:2.5rem;padding:2.3rem 0;border-bottom:1px solid rgba(240,236,228,.05);transition:padding-left .3s;align-items:start}
 .exp-item:first-of-type{border-top:1px solid rgba(240,236,228,.05)}
-.exp-item:hover{padding-left:.8rem}
+.exp-item:hover{padding-left:.8rem;background:rgba(240,236,228,.012);border-radius:2px}
 .exp-date{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;color:var(--red);margin-bottom:.22rem}
 .exp-co{font-family:var(--mono);font-size:.55rem;color:rgba(240,236,228,.25);letter-spacing:.05em}
 .exp-loc{font-family:var(--mono);font-size:.5rem;color:rgba(240,236,228,.14);margin-top:.18rem}
@@ -450,7 +653,7 @@ nav.scrolled{background:rgba(8,8,7,.85);box-shadow:0 1px 0 rgba(255,255,255,.06)
 .sw-top{margin-bottom:2.5rem}
 .sw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:1px;background:rgba(240,236,228,.04);border:1px solid rgba(240,236,228,.04)}
 .sw{background:var(--black);padding:1.7rem 1rem;text-align:center;transition:background .3s}
-.sw:hover{background:var(--gray)}
+.sw:hover{background:var(--gray);transform:translateY(-2px)}.sw{transition:background .3s,transform .3s cubic-bezier(0.23,1,0.32,1)}
 .sw-badge{font-family:var(--mono);font-size:.44rem;letter-spacing:.18em;text-transform:uppercase;color:var(--red);display:block;margin-bottom:.58rem}
 .sw-name{font-family:var(--syne);font-size:.85rem;font-weight:600;color:rgba(240,236,228,.58)}
 .sw-sub{font-family:var(--mono);font-size:.48rem;color:rgba(240,236,228,.17);margin-top:.2rem}
@@ -463,8 +666,8 @@ nav.scrolled{background:rgba(8,8,7,.85);box-shadow:0 1px 0 rgba(255,255,255,.06)
 .ct-big{font-family:var(--syne);font-size:clamp(2rem,5vw,4.8rem);font-weight:800;line-height:.95;letter-spacing:-.03em;color:var(--black);margin-bottom:1.8rem}
 .ct-big em{font-family:var(--serif);font-style:italic;font-weight:400;color:var(--red)}
 .ct-sub{font-family:var(--mono);font-size:.62rem;color:rgba(8,8,7,.42);line-height:1.8;max-width:360px;margin-bottom:2.2rem}
-.ct-link{display:flex;align-items:center;gap:.9rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.05em;color:rgba(8,8,7,.42);text-decoration:none;padding:.82rem 0;border-bottom:1px solid rgba(8,8,7,.07);transition:color .25s}
-.ct-link:hover{color:var(--red)}
+.ct-link{display:flex;align-items:center;gap:.9rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.05em;color:rgba(8,8,7,.42);text-decoration:none;padding:.82rem 0;border-bottom:1px solid rgba(8,8,7,.07);transition:color .25s,transform .2s cubic-bezier(0.23,1,0.32,1);min-height:44px}
+.ct-link:hover{color:var(--red);transform:translateX(4px)}.ct-link:active{transform:translateX(2px) scale(0.99)}
 .ct-ico{width:26px;height:26px;border:1px solid rgba(8,8,7,.14);display:flex;align-items:center;justify-content:center;font-size:.58rem;flex-shrink:0;transition:border-color .25s}
 .ct-link:hover .ct-ico{border-color:var(--red)}
 .ct-r{background:var(--black);display:flex;flex-direction:column;justify-content:center;padding:6rem 4rem}
@@ -491,21 +694,40 @@ footer{background:var(--black);padding:1.8rem 3rem;display:flex;justify-content:
 .rev-l{opacity:0;transform:translateX(-24px);filter:blur(3px);transition:opacity .8s var(--ease-out),transform .8s var(--ease-out),filter .8s var(--ease-out)}
 .rev-l.in{opacity:1;transform:translateX(0);filter:blur(0)}
 
+/* MARQUEE TICKER */
+.marquee-strip{overflow:hidden;border-top:1px solid rgba(240,236,228,.04);border-bottom:1px solid rgba(240,236,228,.04);padding:.7rem 0;background:var(--black);position:relative;min-height:44px;display:flex;align-items:center}
+.marquee-strip::before,.marquee-strip::after{content:'';position:absolute;top:0;bottom:0;width:100px;z-index:2;pointer-events:none}
+.marquee-strip::before{left:0;background:linear-gradient(to right,var(--black) 40%,transparent)}
+.marquee-strip::after{right:0;background:linear-gradient(to left,var(--black) 40%,transparent)}
+.marquee-track{display:flex;gap:0;animation:marquee-scroll 55s linear infinite;width:max-content;will-change:transform}
+.marquee-track:hover{animation-play-state:paused}
+.marquee-item{display:inline-flex;align-items:center;gap:2rem;padding:0 2rem;white-space:nowrap}
+.marquee-dot{width:3px;height:3px;border-radius:50%;background:var(--red);opacity:.5;flex-shrink:0}
+.marquee-text{font-family:var(--mono);font-size:.48rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(240,236,228,.16);transition:color .3s}
+.marquee-track:hover .marquee-text{color:rgba(240,236,228,.28)}
+@keyframes marquee-scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* DETAIL COUNTER */
+.detail-counter{position:fixed;bottom:2rem;right:3rem;z-index:900;font-family:var(--mono);font-size:.5rem;letter-spacing:.18em;color:rgba(240,236,228,.2);background:rgba(8,8,7,.7);backdrop-filter:blur(8px);padding:.4rem .8rem;border:1px solid rgba(240,236,228,.06)}
+@media(max-width:900px){.detail-counter{right:1.5rem;bottom:1.5rem}}
+
 /* FONT SIZE FLOOR — mínimo legible */
 .p-meta,.p-tag,.cat-label,.cat-count,.ficha-label,.ficha-value,.team-role,
 .exp-co,.exp-loc,.exp-ul li,.aw-txt,.f-lbl,.gallery-add-label,.int-meta,
-.uni-meta,.int-desc,.uni-desc,.sw-badge,.sw-sub,.f-copy{font-size:max(.65rem, .65rem)}
-.p-num,.cat-num ~ *,.detail-tag,.detail-breadcrumb{font-size:max(.6rem,.6rem)}
+.uni-meta,.int-desc,.uni-desc,.sw-badge,.sw-sub,.f-copy{font-size:max(.7rem,11px)}
+.p-num,.cat-num ~ *,.detail-tag,.detail-breadcrumb{font-size:max(.65rem,11px)}
+/* Nav links e interactivos — mínimo 12px */
+.nav-links a,.nav-cta,.btn-r,.btn-o,.f-btn,.cat-btn,.p-ver-btn,.uni-ver-btn,.int-ver-btn,.detail-nav-btn,.mob-link ~ *,.mtag{font-size:max(.7rem,12px)}
 
 /* SCROLL MARGIN */
 #projects,#about,#experience,#software,#contact{scroll-margin-top:80px}
 
 /* TEXT WRAP */
-.pi-title,.cat-header-title,.detail-title,.about-bio,.ct-big,.exp-ttl,.about-lbl{text-wrap:balance}
+.pi-title,.cat-header-title,.detail-title,.about-bio,.ct-big,.exp-ttl,.about-lbl,.hero-tagline,.uni-title,.int-title{text-wrap:balance}
 
 /* RESPONSIVE */
 @media(max-width:900px){
-  nav{top:1rem;padding:.6rem .6rem .6rem 1.2rem;gap:1rem}.nav-links{display:none}
+  nav{top:1rem;padding:.6rem .6rem .6rem 1.2rem;gap:1rem}.nav-links{display:none}.nav-burger{display:flex}
   .aie-letter{font-size:clamp(3.5rem,14vw,5.5rem)}
   .stats-bar{flex-wrap:wrap}.stat-item{min-width:50%}
   .proj-intro{padding:4rem 1.5rem 0;grid-template-columns:1fr}
@@ -552,6 +774,13 @@ footer{background:var(--black);padding:1.8rem 3rem;display:flex;justify-content:
 <body>
 
 <a href="#projects" class="skip-link">Saltar al contenido principal</a>
+
+<!-- PRELOADER -->
+<div id="preloader" aria-hidden="true">
+  <div class="pl-logo">AI<span>E</span></div>
+  <div class="pl-bar"><div class="pl-fill"></div></div>
+</div>
+
 <div class="grain" aria-hidden="true"></div>
 <div id="cur" aria-hidden="true"></div>
 <div id="cur-r" aria-hidden="true"></div>
@@ -570,68 +799,72 @@ footer{background:var(--black);padding:1.8rem 3rem;display:flex;justify-content:
     <li><a href="#contact">Contacto</a></li>
   </ul>
   <a href="#contact" class="nav-cta">Hablemos →</a>
+  <button class="nav-burger" id="nav-burger" aria-label="Abrir menú" aria-expanded="false">
+    <span class="burger-line"></span>
+    <span class="burger-line"></span>
+    <span class="burger-line"></span>
+  </button>
 </nav>
 
-<!-- ═══ PROJECT DETAIL OVERLAY ═══ -->
+<!-- MOBILE DRAWER -->
+<div id="mobile-drawer" role="dialog" aria-label="Menú de navegación" aria-modal="true">
+  <a href="#projects" class="mob-link" onclick="closeMobileMenu()">Proyectos</a>
+  <a href="#about" class="mob-link" onclick="closeMobileMenu()">Estudio</a>
+  <a href="#experience" class="mob-link" onclick="closeMobileMenu()">Experiencia</a>
+  <a href="#software" class="mob-link" onclick="closeMobileMenu()">Software</a>
+  <a href="#contact" class="mob-cta" onclick="closeMobileMenu()">Hablemos →</a>
+</div>
+
+<!-- ═══ PROJECT DETAIL — cinematic editorial ═══ -->
 <div id="proj-detail">
+  <div class="detail-progress" id="detail-progress"></div>
   <button class="detail-close" onclick="closeDetail()" aria-label="Cerrar">
     <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
   </button>
+  <div class="detail-counter" id="detail-counter">01 / 19</div>
 
-  <!-- Hero del detalle -->
+  <!-- HERO -->
   <div class="detail-hero" id="detail-hero">
-    <div class="detail-hero-bg" id="detail-hero-bg">
-      <svg id="detail-hero-svg" width="600" height="400" viewBox="0 0 600 400" fill="none" aria-hidden="true"></svg>
-    </div>
-    <div class="detail-hero-gl"></div>
+    <div class="detail-hero-bg" id="detail-hero-bg"></div>
     <div class="detail-hero-grad"></div>
     <div class="detail-hero-content">
-      <div class="detail-breadcrumb">
-        <span id="detail-breadcrumb-cat">Proyectos Arquitectónicos</span>
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-        <span id="detail-breadcrumb-name">Proyecto</span>
-      </div>
+      <div class="detail-cat-label" id="detail-cat-label">Proyectos Arquitectónicos</div>
       <h1 class="detail-title" id="detail-title">Proyecto</h1>
       <div class="detail-tags-row" id="detail-tags"></div>
     </div>
+    <div class="detail-scroll-cue">Scroll</div>
   </div>
 
-  <!-- Body del detalle -->
-  <div class="detail-body">
-    <!-- Columna izquierda: descripción + ficha + equipo -->
-    <div class="detail-desc-col">
-      <div class="detail-section-label">Descripción del proyecto</div>
-      <div class="detail-desc-text" id="detail-desc"></div>
-
-      <div class="detail-section-label">Ficha técnica</div>
-      <div class="detail-ficha" id="detail-ficha"></div>
-
-      <div class="detail-team" id="detail-team-section">
-        <div class="detail-section-label">Equipo del proyecto</div>
-        <div class="team-grid" id="detail-team"></div>
-      </div>
-    </div>
-
-    <!-- Columna derecha: galería -->
-    <div class="detail-gallery-col">
-      <div class="detail-section-label">Galería</div>
-      <div class="gallery-main" id="detail-gallery-main">
-        <div class="gallery-main-bg" id="detail-gallery-main-bg">
-          <svg id="detail-gallery-svg" width="380" height="280" viewBox="0 0 380 280" fill="none" aria-hidden="true"></svg>
-        </div>
-      </div>
-      <div class="gallery-thumbs" id="detail-gallery-thumbs"></div>
-      <div class="gallery-note" style="display:none"></div>
-    </div>
+  <!-- DESCRIPCIÓN -->
+  <div class="detail-intro d-reveal" id="detail-intro">
+    <div class="detail-intro-num" id="detail-intro-num">001</div>
+    <div class="detail-desc-text" id="detail-desc"></div>
   </div>
 
-  <!-- Nav proyectos -->
-  <div class="detail-nav">
-    <button class="detail-nav-btn" id="detail-prev" onclick="navProject(-1)">← Proyecto anterior</button>
-    <button class="detail-nav-back" onclick="closeDetail()">↑ Volver a todos los proyectos</button>
-    <button class="detail-nav-btn" id="detail-next" onclick="navProject(1)">Proyecto siguiente →</button>
+  <!-- FICHA TÉCNICA -->
+  <div class="detail-ficha-strip d-reveal" id="detail-ficha"></div>
+
+  <!-- GALERÍA -->
+  <div class="detail-gallery-wrap" id="detail-gallery-wrap"></div>
+
+  <!-- EQUIPO -->
+  <div class="detail-team-wrap d-reveal" id="detail-team-wrap">
+    <div class="detail-team-label">Equipo</div>
+    <div id="detail-team"></div>
+  </div>
+
+  <!-- PRÓXIMO PROYECTO -->
+  <div class="detail-next-project" id="detail-next-proj" onclick="navProject(1)" role="button" tabindex="0">
+    <div class="detail-next-bg" id="detail-next-bg"></div>
+    <div class="detail-next-grad"></div>
+    <div class="detail-next-arrow"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></div>
+    <div class="detail-next-content">
+      <div class="detail-next-eyebrow">Próximo proyecto</div>
+      <div class="detail-next-title" id="detail-next-title">—</div>
+    </div>
   </div>
 </div>
+
 
 <!-- MAIN -->
 <main id="main-content">
@@ -659,25 +892,34 @@ footer{background:var(--black);padding:1.8rem 3rem;display:flex;justify-content:
   <div class="hero-scroll"><div class="scroll-bar"></div><span>Scroll</span></div>
 </section>
 
-<!-- STATS -->
-<div class="stats-bar">
-  <div class="stat-item"><div class="stat-n">6+</div><div class="stat-l">Años de experiencia</div></div>
-  <div class="stat-item"><div class="stat-n">20+</div><div class="stat-l">Proyectos realizados</div></div>
-  <div class="stat-item"><div class="stat-n">9</div><div class="stat-l">Softwares dominados</div></div>
-  <div class="stat-item"><div class="stat-n">2</div><div class="stat-l">Países</div></div>
-  <div class="stat-item"><div class="stat-n">3</div><div class="stat-l">Reconocimientos</div></div>
+<!-- MARQUEE TICKER -->
+<div class="marquee-strip" aria-hidden="true">
+  <div class="marquee-track" id="marquee-track"></div>
+</div>
+
+<!-- MANIFESTO STRIP -->
+<div class="manifesto-strip">
+  <div class="manifesto-claim">Arquitectura que <em>transforma</em> ciudades —<br>Colombia &amp; España</div>
+  <div class="manifesto-tags">
+    <span class="mtag">Residencial</span>
+    <span class="mtag">Comercial</span>
+    <span class="mtag">Interiorismo</span>
+    <span class="mtag">BIM</span>
+    <span class="mtag">Renders fotorrealistas</span>
+    <span class="mtag">6+ años</span>
+  </div>
 </div>
 
 <!-- PROJECTS -->
 <section id="projects">
   <div class="proj-intro rev">
     <div><div class="pi-label">Trabajo selecto</div><h2 class="pi-title">Tres <em>disciplinas</em>,<br>un estudio</h2></div>
-    <div class="pi-count">20</div>
+    <div class="pi-count">19</div>
   </div>
 
   <div class="cat-tabs">
     <button class="cat-btn active" data-cat="arq" onclick="switchCat('arq',this)">
-      <div class="cat-num">01</div><div class="cat-label">Proyectos Arquitectónicos</div><div class="cat-count">9 proyectos</div>
+      <div class="cat-num">01</div><div class="cat-label">Proyectos Arquitectónicos</div><div class="cat-count">8 proyectos</div>
     </button>
     <button class="cat-btn" data-cat="uni" onclick="switchCat('uni',this)">
       <div class="cat-num">02</div><div class="cat-label">Proyectos Universitarios</div><div class="cat-count">5 proyectos</div>
@@ -872,7 +1114,7 @@ footer{background:var(--black);padding:1.8rem 3rem;display:flex;justify-content:
   <div class="ct-r rev">
     <div data-fs-success style="display:none;font-family:var(--mono);font-size:.65rem;color:var(--cat-uni);margin-bottom:1rem;letter-spacing:.06em">✓ Mensaje enviado — te respondo pronto.</div>
     <div data-fs-error style="display:none;font-family:var(--mono);font-size:.65rem;color:var(--red);margin-bottom:1rem;letter-spacing:.06em">✗ Error al enviar. Escríbeme a alvaroibarra715@gmail.com</div>
-    <form id="contact-form">
+    <form id="contact-form" name="contacto" data-netlify="true" netlify-honeypot="bot-field">
       <label class="f-lbl" for="f-nombre">Nombre</label>
       <input id="f-nombre" name="nombre" type="text" class="f-inp" placeholder="Tu nombre completo…" autocomplete="name" required data-fs-field>
       <span data-fs-error="nombre" style="font-family:var(--mono);font-size:.58rem;color:var(--red);display:block;margin-top:-.8rem;margin-bottom:.6rem"></span>
@@ -900,7 +1142,7 @@ footer{background:var(--black);padding:1.8rem 3rem;display:flex;justify-content:
   <div class="f-brand">AI<span>E</span></div>
 </footer>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 // ═══ DATOS DE PROYECTOS ═══
 const PROJECTS = {
   'farallones-tower': {
@@ -939,7 +1181,7 @@ const PROJECTS = {
     id:'vibe-suiza',cat:'Proyectos Arquitectónicos',
     title:'Vibe Suiza',titleEm:'Tower',
     tags:['Residencial','10 pisos','Jardines verticales','La Suiza · Cali','2025'],
-    desc:`Vibe Suiza es un proyecto residencial de <strong>10 pisos</strong>, concebido como una propuesta de vivienda vertical que combina diseño contemporáneo, sostenibilidad y confort urbano.\n\nSu fachada se distingue por la integración de <strong>jardines verticales y celosías de madera</strong>, elementos que aportan frescura, control climático y un lenguaje arquitectónico natural. Los balcones verdes generan un ritmo visual dinámico y promueven la conexión directa con la naturaleza en cada apartamento.\n\nEl edificio se abre a la ciudad con un <strong>lobby de acceso moderno y transparente</strong>. En los niveles superiores, los apartamentos están diseñados para aprovechar la ventilación cruzada, la iluminación natural y las vistas despejadas hacia el barrio tradicional de La Suiza.`,
+    desc:`Vibe Suiza es la respuesta a una pregunta: <strong>¿cómo se respira la ciudad desde adentro?</strong>\n\nUn edificio de 10 pisos donde la <strong>madera y la vegetación no son decoración, sino piel</strong>. Cada fachada respira con jardines escalonados, cada celosía filtra la luz, cada balcón es un vacío habitable que conecta con el verde.\n\nNo es un conjunto más. Es una <strong>máquina de aire fresco</strong> donde la naturaleza se cuela por grietas intencionales, donde los espacios comunes se respiran antes de alcanzar los apartamentos, donde vivir es una experiencia casi meditativa en medio de la ciudad.`,
     ficha:[
       ['Tipología','Residencial vertical'],['Pisos','10 niveles'],['Año','2025'],
       ['Ubicación','La Suiza, Cali'],['Cliente','Grupo Iconic'],['Rol','Diseño + Renders + Branding'],
@@ -955,7 +1197,7 @@ const PROJECTS = {
     id:'hotel-sevilla',cat:'Proyectos Arquitectónicos',
     title:'Hotel',titleEm:'Sevilla',
     tags:['Concurso hotelero','Sevilla · España','Arquitectura mediterránea','2024'],
-    desc:`Proyecto de concurso para un hotel en el entorno de San Francisco Javier, Sevilla. El principal reto era dar forma a un programa muy compacto al tiempo de ofrecer un <strong>frente urbano dinámico y fresco</strong>.\n\nLa compleja geometría del solar invita a concentrar la edificación de forma que se libere el sur para el disfrute de los espacios exteriores. La edificación se parte en dos bandas que juegan en altura y posición, liberando un espacio cualificado esencial para que el edificio participe de la <strong>vida urbana del entorno</strong>.\n\nEl proyecto propone un recorrido por el imaginario de espacios exteriores de Sevilla: el <strong>zaguán, el jardín interior, el patio comunitario, el balcón-patio privado y la azotea verde</strong>. El 100% de los apartamentos disfrutan de orientación sur.`,
+    desc:`En Sevilla, los patios son <strong>respiradores de la ciudad</strong>. Este hotel responde esa lógica ancestral con un gesto contemporáneo.\n\nDos bandas volumétricas se abrazan <strong>liberando el sur</strong>, creando un vacío interior que respira. Dentro: zaguánes sevillanos, patios íntimos, galerías sombreadas. Fuera: fachadas de celosía que filtran la luz de Andalucía.\n\nCada habitación mira hacia el sur. Cada espacio común es un patio que se reinventa. La geometría compleja del solar se resuelve <strong>de forma que el edificio se diluye en la ciudad</strong>, participando del ritmo urbano en lugar de confrontarlo.\n\nNo es un hotel. Es <strong>una interpretación contemporánea del patio sevillano</strong>.`,
     ficha:[
       ['Tipología','Hotel + Residencial'],['Año','2024'],
       ['Ubicación','Sevilla, España'],['Cliente','Concurso U+G Arquitectos'],
@@ -972,7 +1214,7 @@ const PROJECTS = {
     id:'farallones-mall',cat:'Proyectos Arquitectónicos',
     title:'Farallones',titleEm:'Mall & Tower',
     tags:['Uso mixto','Comercio · Oficinas · Hotel','Cali','2025'],
-    desc:`Farallones Mall & Tower es un <strong>ícono arquitectónico</strong> que fusiona comercio, oficinas y hotel en un mismo espacio. Su diseño contemporáneo con terrazas verdes y espacios abiertos lo convierte en un destino único en la ciudad.\n\nEl centro comercial ofrece <strong>experiencias gastronómicas, moda y entretenimiento</strong> de primer nivel. La torre se eleva con exclusivas oficinas y un hotel de categoría, ideal para negocios y descanso.\n\nUn complejo moderno que redefine el estilo de vida urbano con elegancia y sofisticación.`,
+    desc:`Farallones es <strong>más que un edificio: es un destino donde la ciudad se reconoce a sí misma</strong>.\n\nUn complejo mixto donde el <strong>comercio respira en plazas abiertas, las oficinas flotan en torres de vidrio limpio, y el hotel descansa bajo terrazas verdes</strong>. Cada zona tiene su propia atmósfera: la calle se democratiza, los negocios se cierren en espacios controlados, y los huéspedes encuentran paz en la altura.\n\nNo es un mall convencional. Es una <strong>ciudad vertical</strong> donde cada función alimenta a las otras, donde la luz llega hasta el sótano, donde estar aquí se siente como estar en el lugar correcto.`,
     ficha:[
       ['Tipología','Uso mixto'],['Año','2025'],['Ubicación','Cali, Colombia'],
       ['Cliente','Grupo Iconic'],['Usos','Centro comercial · Oficinas · Hotel'],
@@ -988,7 +1230,7 @@ const PROJECTS = {
     id:'casa-gaudi',cat:'Proyectos Arquitectónicos',
     title:'Casa',titleEm:'Gaudí',
     tags:['Residencial unifamiliar','Lujo','Diseño contemporáneo','2025'],
-    desc:`La Casa Gaudí es una <strong>residencia de diseño contemporáneo</strong> que integra elegancia, confort y naturaleza. Sus ventanales de piso a techo inundan los espacios con luz natural y conectan el interior con los jardines.\n\nCuenta con <strong>piscina, terraza social y áreas abiertas</strong> que invitan a disfrutar de la vida al aire libre. Un hogar pensado para quienes buscan exclusividad, amplitud y un estilo de vida sofisticado.`,
+    desc:`Casa Gaudí es <strong>el vacío interior hecho arquitectura</strong>. Un espacio donde los límites entre adentro y afuera se disuelven a través de <strong>ventanales que capturan la luz en capas</strong>, creando una experiencia casi cinética del lugar.\n\nCada zona responde a una <strong>lógica de fluidez</strong>: la piscina se integra como reflejo del cielo, las terrazas escalonadas generan una secuencia de vistas calibradas, y los interiores respiran con la vegetación circundante.\n\nNo es solo un hogar. Es una <strong>máquina de vivir</strong> donde cada metro cuadrado fue concebido para amplificar la percepción sensorial del espacio y la luz. Contemporáneo, atrevido, intencionado.`,
     ficha:[
       ['Tipología','Residencial unifamiliar'],['Año','2025'],['Ubicación','Cali, Colombia'],
       ['Cliente','Ing. Andrés Felipe Espinoza'],['Rol','Diseño arquitectónico · Renders'],
@@ -1004,7 +1246,7 @@ const PROJECTS = {
     id:'dermalaser',cat:'Proyectos Arquitectónicos',
     title:'Dermalaser',titleEm:'Ciudad Jardín',
     tags:['Comercial · Clínica','Construido','Ciudad Jardín · Cali','2020'],
-    desc:`Proyecto comercial desarrollado para una <strong>clínica cosmética</strong> ubicada en el barrio Ciudad Jardín de Cali. El proyecto se encuentra actualmente <strong>construido</strong>.\n\nMi participación abarcó desde la etapa de diseño arquitectónico hasta la modelación y representación 3D, contribuyendo a materializar la propuesta y comunicar de manera precisa los espacios y la experiencia proyectada.`,
+    desc:`Dermalaser es <strong>la transformación de un espacio médico en un ritual de bienestar</strong>.\n\nUna clínica donde la <strong>luz natural es el primer tratamiento</strong>. Patios interiores acristalados, corredores con espejo de agua, consultórios rodeados de vegetación. La arquitectura aquí no sirve solo de contenedor; es parte de la sanación.\n\nUbicada en Ciudad Jardín, la propuesta respeta la escala barrial mientras internamente genera una <strong>experiencia de paz y control</strong>. Cada rincón fue pensado para calmar, para que el paciente se sienta en un lugar intencional.\n\nYa <strong>construido y operativo</strong>, Dermalaser demuestra que el comercio médico puede respirar con dignidad.`,
     ficha:[
       ['Tipología','Clínica cosmética · Comercial'],['Año','2020'],
       ['Ubicación','Ciudad Jardín, Cali'],['Cliente','AT Arquitectos'],
@@ -1020,7 +1262,7 @@ const PROJECTS = {
     id:'vis-vip',cat:'Proyectos Universitarios',
     title:'Vivienda Colectiva',titleEm:'VIS / VIP',
     tags:['1er Puesto','Concurso Alcaldía','Madera y Guadua','Santa Rosa de Cabal','Simón Vélez'],
-    desc:`Proyecto académico de <strong>7° semestre</strong>, enfocado en vivienda multifamiliar VIS y VIP, desarrollado en el marco de un concurso de la Alcaldía de Santa Rosa de Cabal para proponer un nuevo prototipo habitacional reducido ante el crecimiento urbano.\n\nLa propuesta se planteó con uso exclusivo de <strong>madera y guadua (bambú colombiano)</strong> como sistemas constructivos sostenibles, obteniendo el <strong>primer puesto</strong> y el reconocimiento del arquitecto Simón Vélez por su innovación y pertinencia en el contexto local.\n\nEl proyecto integra criterios de sostenibilidad, identidad local y eficiencia espacial, proponiendo un modelo habitacional replicable para contextos rurales y periurbanos colombianos.`,
+    desc:`<strong>Madera y guadua como respuesta</strong> a una pregunta de identidad.\n\nEn Santa Rosa de Cabal, la pregunta fue: ¿cómo se construye vivienda social sin perder el territorio? La respuesta fue <strong>volver a lo que crece aquí: bambú y madera nativa</strong>.\n\nUn modelo de vivienda multifamiliar donde cada <strong>estructura es un árbol urbano</strong>, donde la guadua no es material barato sino expresión de pertinencia. Espacios compactos pero generosos, sistemas constructivos que respetan el contexto, una <strong>arquitectura que se deja habitar sin imposición</strong>.\n\nPrimer puesto en concurso y reconocimiento del Arq. Simón Vélez. No por ser académico, sino porque <strong>respeta el territorio mientras lo transforma</strong>.`,
     ficha:[
       ['Tipología','Vivienda multifamiliar VIS/VIP'],['Semestre','7° semestre'],
       ['Año','2022'],['Ubicación','Santa Rosa de Cabal, Colombia'],
@@ -1038,7 +1280,7 @@ const PROJECTS = {
     id:'corazon-pance',cat:'Proyectos Universitarios',
     title:'Corazón',titleEm:'de Pance',
     tags:['Urbanismo','Reconocimiento nacional','Plan Urbano','Comuna 22 · Cali','8° semestre'],
-    desc:`Proyecto urbano de <strong>8° semestre</strong>, asesorado por la arquitecta y urbanista Marcela Falla, reconocido a nivel nacional. Consistió en la elaboración de un <strong>Plan Urbano General para la Comuna 22</strong> de Santiago de Cali.\n\nEl proyecto partió de la identificación de problemáticas urbanas y su intervención mediante propuestas de solución. Posteriormente, se desarrolló un <strong>Plan Urbano Estratégico</strong> enfocado en un sector específico, integrando lineamientos de movilidad, espacio público y sostenibilidad territorial.\n\nLa propuesta fue reconocida a nivel nacional por su rigor metodológico y la pertinencia de sus intervenciones en el tejido urbano de Cali.`,
+    desc:`Pance no es una zona geográfica. Es un <strong>corazón que late desconectado de la ciudad</strong>.\n\nEste plan urbano preguntó: ¿cómo se reconecta una comunidad con su propia ciudad? El resultado fue un <strong>sistema de movilidad que abre, no que separa</strong>; espacios públicos que generan encuentro; sostenibilidad que es política, no eslogan.\n\nDesarrollado bajo asesoría de Marcela Falla, el proyecto integró <strong>análisis profundo de problemáticas, propuestas de intervención territorial, y un modelo replicable</strong> para la Comuna 22 de Cali.\n\nReconocido nacionalmente no por su escala, sino porque <strong>demuestra que la arquitectura urbana es acto de justicia social</strong>.`,
     ficha:[
       ['Tipología','Plan Urbano General'],['Semestre','8° semestre'],
       ['Año','2023'],['Ubicación','Comuna 22, Santiago de Cali'],
@@ -1056,7 +1298,7 @@ const PROJECTS = {
     id:'salon-bioclimatico',cat:'Proyectos Universitarios',
     title:'Salón Comunitario',titleEm:'Los Libertadores',
     tags:['Arquitectura bioclimática','6° semestre','Centro cultural','Diseño sostenible'],
-    desc:`Proyecto académico de <strong>6° semestre</strong> desarrollado en un barrio sin espacio público común, enfocado en la creación de un lugar de encuentro comunitario mediante <strong>criterios bioclimáticos</strong>.\n\nLa propuesta aprovecha la orientación solar y los vientos predominantes para optimizar iluminación y ventilación natural, integrando vegetación y <strong>materiales sostenibles de bajo impacto</strong>.\n\nEl diseño busca generar confort ambiental, fortalecer la identidad del sector y promover la cohesión social a través de un espacio accesible y apropiable por la comunidad.`,
+    desc:`En un barrio donde <strong>no había lugar para encontrarse</strong>, la pregunta fue: ¿cómo se construye confort sin máquinas?\n\nLa respuesta fue <strong>leer la geografía: orientación solar, vientos, vegetación nativa</strong>. Cada celosía está calibrada. Cada ventana es un regulador de temperatura. Cada corriente de aire es arquitectura.\n\nUn salón comunitario donde el <strong>confort emerge del lugar, no del artificio</strong>. Donde la gente viene porque el espacio respira, porque la luz llega exacta, porque el aire se mueve sin fuerza. Un proyecto bioclimático donde lo biológico y lo arquitectónico son inseparables.\n\nNo es solo un edificio. Es <strong>la demostración de que la sustentabilidad es superior estéticamente</strong>.`,
     ficha:[
       ['Tipología','Centro cultural comunitario'],['Semestre','6° semestre'],
       ['Año','2021'],['Ubicación','Cali, Colombia'],
@@ -1073,7 +1315,7 @@ const PROJECTS = {
     id:'residencia-artistas',cat:'Proyectos Universitarios',
     title:'Residencia para',titleEm:'Artistas',
     tags:['5° Semestre','Vivienda colectiva','Cali','Casa de la Queja','Patios y vacíos'],
-    desc:`Este proyecto propone una <strong>residencia para artistas en la ciudad de Cali</strong>, concebida como un sistema habitable que integra creación, encuentro y vida cotidiana dentro de un contexto urbano consolidado.\n\nImplantado entre medianeras, el edificio se desarrolla a partir de una <strong>operación en sección</strong> que permite extender la experiencia espacial desde la cota baja hasta la más alta del lote. A través de un escalonamiento progresivo, la arquitectura se adapta a la topografía y construye una secuencia continua de espacios intermedios.\n\nLa volumetría se fragmenta en <strong>tres cuerpos principales</strong> que reinterpretan la lógica de la casa de la Queja, incorporando patios y vacíos que funcionan como núcleos de luz, ventilación y relación colectiva. Estos recintos interiores no solo organizan el programa, sino que activan dinámicas de interacción entre los residentes.\n\nUn <strong>pasaje longitudinal</strong> atraviesa el edificio conectando los distintos niveles y articulando el proyecto con la ciudad. Este recorrido se vincula directamente con una cafetería en el primer nivel, entendida como un espacio abierto que extiende la actividad artística hacia lo público.\n\nMás que una residencia, el proyecto se plantea como una <strong>plataforma creativa</strong> donde la arquitectura actúa como mediadora entre lo individual y lo colectivo, entre el habitar y el producir, entre el interior y la ciudad.`,
+    desc:`Una residencia para artistas es <strong>un acto político</strong>. Es decir que la creatividad merece espacio digno en la ciudad consolidada.\n\nEste proyecto se desarrolla <strong>entre medianeras</strong>, operando en sección para extraer máxima generosidad de un lote apretado. Tres volúmenes escalonados crean <strong>patios interiores que son galerías vivas</strong>, donde la luz filtra la creación.\n\nUn pasaje público atraviesa el proyecto de piso a piso, conectando con una cafetería abierta que <strong>derrama actividad artística hacia la calle</strong>. La arquitectura no encierra; articula. No separa el taller del hogar; los teje.\n\nMás que residencia, es <strong>máquina de polinización creativa</strong> donde habitar y producir son la misma cosa, donde el encuentro no es accidental sino inevitable, donde <strong>el arte respira dentro de la ciudad</strong>.`,
     ficha:[
       ['Tipología','Residencia colectiva para artistas'],
       ['Semestre','5° semestre'],
@@ -1111,7 +1353,7 @@ const PROJECTS = {
     id:'naples-holguines',cat:'Proyectos de Interiorismo',
     title:'Oficina Naples',titleEm:'Holguines',
     tags:['Diseño corporativo','14 espacios','Naples Prime SAS','Cali · 2024'],
-    desc:`Proyecto de diseño interior corporativo para <strong>Naples Prime SAS</strong> en el sector Holguines de Cali. Nos enfocamos en optimizar el diseño para que cada espacio funcione de manera ergonómica, permitiendo a quienes trabajan aquí disfrutar de áreas amplias y confortables.\n\nCada oficina fue diseñada de manera <strong>personalizada</strong>, adaptándose a las necesidades específicas de cada área para ofrecer privacidad adecuada y potenciar la productividad individual y de equipo.\n\nAprovechamos los ventanales existentes para maximizar la <strong>entrada de luz natural</strong> y conservar la vista hacia los icónicos Farallones de Cali. Espacios diseñados: exclusa, sala de espera, corredor principal, área de negocios, gerencia general, sala de juntas, zona administrativa, cocineta, baño y fundición.`,
+    desc:`Naples Holguines es <strong>convertir trabajo corporativo en un acto de bienestar</strong>.\n\nCatorce espacios diseñados <strong>no para impresionar, sino para que quienes aquí trabajan se sientan respetados</strong>. Cada zona fue calibrada: la gerencia con peso, el corredor con flujo, las oficinas con privacidad selectiva.\n\nLa luz de los Farallones filtra por ventanales estratégicos. Los materiales respiran. La ergonomía no es especificación técnica, es gesto arquitectónico de cuidado.\n\n<strong>Espacios corporativos donde trabajar se siente como elegir estar en un lugar bueno</strong>. Esto es Naples.`,
     ficha:[
       ['Tipología','Diseño de interiores corporativo'],['Año','2024'],
       ['Ubicación','Holguines, Cali, Colombia'],['Cliente','Naples Prime SAS CI'],
@@ -1144,7 +1386,7 @@ const PROJECTS = {
     id:'apartamento-borbolla',cat:'Proyectos de Interiorismo',
     title:'Apartamento',titleEm:'Borbolla',
     tags:['Interiorismo residencial','Sevilla · España','Diseño contemporáneo','2024'],
-    desc:`Proyecto de interiorismo desarrollado en un <strong>apartamento en el sector Borbolla</strong> de Sevilla, España. La propuesta se centró en optimizar la distribución espacial y potenciar la iluminación natural.\n\nSe trabajó en la <strong>selección de materiales, paleta cromática y mobiliario</strong>, logrando un diseño contemporáneo que combina sobriedad, calidez y confort dentro de un espacio reducido. La propuesta integra el estilo mediterráneo con un enfoque contemporáneo y funcional.`,
+    desc:`En Borbolla, Sevilla, el reto fue hacer <strong>respirable un espacio apretado</strong>.\n\nLa solución fue <strong>no decorar, sino respirar</strong>. Cada material se eligió por su capacidad de calentar sin claustrofobiar. Cada línea apunta a amplitud. Cada color es una inhalación de aire.\n\nMateriales naturales en degradé, paleta mediterránea contemporánea, mobiliario que desaparece en las paredes. El resultado: <strong>un apartamento donde 60m² se sienten como 80, donde la luz juega, donde estar dentro es estar bien</strong>.\n\nBorbolla demuestra que el interiorismo premium no es lujo de tamaño, sino intención de calidad.`,
     ficha:[
       ['Tipología','Interiorismo residencial'],['Año','2024'],
       ['Ubicación','Borbolla, Sevilla, España'],['Cliente','U+G Arquitectos'],
@@ -1208,9 +1450,7 @@ const PROJECTS = {
     id:'pance-124',cat:'Proyectos Arquitectónicos',
     title:'Pance',titleEm:'124',
     tags:['Residencial','Anteproyecto','Cali','2024'],
-    desc:`Propuesta de edificio residencial ubicado en el sector de Pance, al sur de Cali. El proyecto planteaba una volumetría contemporánea con balcones verdes y fachada de materiales naturales, integrándose con el entorno paisajístico de la zona.
-
-El diseño alcanzó la etapa de <strong>anteproyecto y renders fotorrealistas</strong> antes de que el cliente decidiera no continuar con el desarrollo. El trabajo refleja capacidad de propuesta, representación gráfica y dominio del entorno natural en proyectos de vivienda colectiva.`,
+    desc:`Pance 124 fue una conversación con la geografía: cómo se construye en una ladera sin romper la topografía.\n\nLa propuesta respondió con <strong>balcones verdes escalonados, fachadas de madera en degradé, volumetría que respeta la pendiente</strong>. No un edificio impuesto, sino <strong>una intervención que aprende del paisaje</strong>.\n\nAunque el cliente decidió no continuar, el proyecto demostró capacidad de <strong>proposición sensible, representación fotorrealista y lectura profunda del contexto natural</strong>. En arquitectura, las propuestas no realizadas muchas veces son más interesantes que las construidas.\n\nPance 124 fue la prueba de que los mejores proyectos a veces solo existen para <strong>demostrar posibilidades</strong>.`,
     ficha:[
       ['Tipología','Residencial vertical'],['Año','2024'],
       ['Ubicación','Pance, Cali'],['Estado','Proyecto no continuado'],
@@ -1227,116 +1467,173 @@ const PROJECT_ORDER = Object.keys(PROJECTS);
 let currentProject = null;
 
 function openProject(id) {
-  const p = PROJECTS[id];
+  var p = PROJECTS[id];
   if(!p) return;
   currentProject = id;
+  var idx = PROJECT_ORDER.indexOf(id);
 
-  // Breadcrumb
-  document.getElementById('detail-breadcrumb-cat').textContent = p.cat;
-  document.getElementById('detail-breadcrumb-name').textContent = p.title + ' ' + p.titleEm;
-
-  // Title
+  // Cat label + Title + Tags
+  var catEl = document.getElementById('detail-cat-label');
+  if(catEl) catEl.textContent = p.cat;
   document.getElementById('detail-title').innerHTML = p.title + ' <em>' + p.titleEm + '</em>';
+  document.getElementById('detail-tags').innerHTML = p.tags.map(function(t){ return '<span class="detail-tag">'+t+'</span>'; }).join('');
 
-  // Tags
-  const tagsEl = document.getElementById('detail-tags');
-  tagsEl.innerHTML = p.tags.map(t => `<span class="detail-tag">${t}</span>`).join('');
+  // Intro number
+  var numEl = document.getElementById('detail-intro-num');
+  if(numEl) numEl.textContent = String(idx+1).padStart(3,'0');
 
-  // Hero BG color based on category
-  const heroBg = document.getElementById('detail-hero-bg');
-  if(p.cat === 'Proyectos Arquitectónicos') heroBg.style.background = 'linear-gradient(145deg,#1c1408,#2a1e0c)';
-  else if(p.cat === 'Proyectos Universitarios') heroBg.style.background = 'linear-gradient(145deg,#081410,#0e2018)';
-  else heroBg.style.background = 'linear-gradient(145deg,#14100a,#20180e)';
+  // Hero BG
+  var heroBg = document.getElementById('detail-hero-bg');
+  var coverImg = (p.gallery && p.gallery[0] && p.gallery[0].img) ? p.gallery[0].img : '';
+  var grad = p.cat==='Proyectos Arquitectónicos' ? 'linear-gradient(145deg,#1c1408,#2a1e0c)'
+           : p.cat==='Proyectos Universitarios'  ? 'linear-gradient(145deg,#081410,#0e2018)'
+           : 'linear-gradient(145deg,#14100a,#20180e)';
+  heroBg.style.cssText = 'position:absolute;inset:0;transform:scale(1.08);transition:transform 1.4s cubic-bezier(.16,1,.3,1);background-size:cover;background-position:center;'
+    + (coverImg ? "background-image:url('"+coverImg+"')" : 'background:'+grad);
 
-  // Description
-  document.getElementById('detail-desc').innerHTML = p.desc.replace(/\n/g,'<br><br>');
+  // Descripción — primera frase grande
+  var rawDesc = p.desc.replace(/\n\n/g,'|||').replace(/\n/g,' ');
+  var paras = rawDesc.split('|||').map(function(s){ return s.trim(); }).filter(Boolean);
+  document.getElementById('detail-desc').innerHTML = paras.map(function(s){ return '<p>'+s+'</p>'; }).join('');
 
-  // Ficha técnica
-  const fichaEl = document.getElementById('detail-ficha');
-  fichaEl.innerHTML = p.ficha.map(([l,v]) => `
-    <div class="ficha-row">
-      <span class="ficha-label">${l}</span>
-      <span class="ficha-value">${v}</span>
-    </div>`).join('');
-
-  // Team
-  const teamEl = document.getElementById('detail-team');
-  teamEl.innerHTML = p.team.map(m => `
-    <div class="team-member">
-      <div class="team-avatar" style="background:${m.name==='Grupo Iconic' ? '#fff' : m.bg};color:${m.color};overflow:hidden;display:flex;align-items:center;justify-content:center">${m.name==='Grupo Iconic' ? '<img src="img/logo-iconic.jpg" alt="Grupo Iconic" style="width:100%;height:100%;object-fit:contain;padding:5px;box-sizing:border-box">' : m.initials}</div>
-      <div class="team-info">
-        <div class="team-name">${m.name}</div>
-        <div class="team-role">${m.role}</div>
-      </div>
-    </div>`).join('');
-
-  // Gallery
-  const thumbsEl = document.getElementById('detail-gallery-thumbs');
-  const accColor = p.cat === 'Proyectos Arquitectónicos' ? '#c13a24' : p.cat === 'Proyectos Universitarios' ? '#4a7c6f' : '#7a6244';
-  thumbsEl.innerHTML = p.gallery.map((g, i) => {
-    const name = (typeof g === 'string') ? g : g.cap;
-    const img = (g && g.img) ? g.img : '';
-    return `
-    <div class="gallery-thumb ${i===0?'active':''}" data-img="${img}" data-cap="${name.replace(/"/g,'&quot;')}" onclick="selectThumb(this,'${accColor}')">
-      <div class="gallery-thumb-bg" style="${img?`background-image:url('${img}');background-size:cover;background-position:center`:`background:${i===0?'rgba(240,236,228,.05)':'rgba(240,236,228,.02)'}`}">
-        ${img?'':`<div class="gallery-add-label"><span style="font-size:.7rem;opacity:.3">◻</span><span>${name}</span></div>`}
-      </div>
-    </div>`;
+  // Ficha — franja horizontal
+  var fichaEl = document.getElementById('detail-ficha');
+  fichaEl.innerHTML = p.ficha.map(function(row){
+    return '<div class="ficha-cell"><span class="ficha-label">'+row[0]+'</span><span class="ficha-value">'+row[1]+'</span></div>';
   }).join('');
 
-  // Main gallery
-  if(p.gallery[0]) {
-    const g0 = p.gallery[0];
-    const img0 = (g0 && g0.img) ? g0.img : '';
-    const cap0 = (typeof g0 === 'string') ? g0 : g0.cap;
-    document.getElementById('detail-gallery-main-bg').innerHTML = img0
-      ? `<div style="width:100%;height:100%;background-image:url('${img0}');background-size:cover;background-position:center"></div>`
-      : `<div style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1rem;width:100%;height:100%;background:rgba(240,236,228,.025)">
-        <span style="font-size:3rem;opacity:.12">◻</span>
-        <span style="font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;color:rgba(240,236,228,.2);text-align:center;padding:0 2rem">${cap0}</span>
-        <span style="font-family:var(--mono);font-size:.5rem;color:rgba(240,236,228,.12);text-align:center">Agrega tu imagen aquí</span>
-      </div>`;
+  // Galería — cinematográfica
+  var galEl = document.getElementById('detail-gallery-wrap');
+  var imgs = (p.gallery||[]).filter(function(g){ return g && g.img; });
+  var strImgs = (p.gallery||[]).filter(function(g){ return typeof g === 'string'; });
+  var galHTML = '';
+  if(imgs.length > 0) {
+    imgs.forEach(function(g, i) {
+      var size = i===0 ? 'size-tall' : (i%3===1 && imgs[i+1]) ? '' : 'size-full';
+      if(i%3===1 && imgs[i+1]) {
+        // Par
+        galHTML += '<div class="gallery-cin-grid">';
+        galHTML += '<div class="gallery-cin-item size-half"><img class="gallery-cin-img" src="'+g.img+'" alt="'+g.cap+'" loading="lazy"><div class="gallery-cin-cap">'+g.cap+'</div><div class="gallery-cin-num">0'+(i+1)+'</div></div>';
+        galHTML += '<div class="gallery-cin-item size-half"><img class="gallery-cin-img" src="'+imgs[i+1].img+'" alt="'+imgs[i+1].cap+'" loading="lazy"><div class="gallery-cin-cap">'+imgs[i+1].cap+'</div><div class="gallery-cin-num">0'+(i+2)+'</div></div>';
+        galHTML += '</div>';
+      } else if(i%3!==2 || !imgs[i-1]) {
+        galHTML += '<div class="gallery-cin-item '+size+'"><img class="gallery-cin-img" src="'+g.img+'" alt="'+g.cap+'" loading="lazy"><div class="gallery-cin-cap">'+g.cap+'</div><div class="gallery-cin-num">0'+(i+1)+'</div></div>';
+      }
+    });
+  } else if(strImgs.length > 0) {
+    galHTML = strImgs.map(function(cap, i){
+      return '<div class="gallery-cin-item size-full"><div class="gallery-cin-ph">'
+        +'<div class="gallery-cin-ph-icon"><svg width="40" height="40" viewBox="0 0 40 40" fill="none"><rect x="4" y="8" width="32" height="24" stroke="#c13a24" stroke-width="0.8"/><path d="M4 26l8-6 7 5 5-4 12 8" stroke="#c13a24" stroke-width="0.6"/></svg></div>'
+        +'<div class="gallery-cin-ph-label">'+cap+'</div>'
+        +'</div></div>';
+    }).join('');
+  }
+  galEl.innerHTML = galHTML;
+
+  // IntersectionObserver para galería parallax
+  var cinItems = galEl.querySelectorAll('.gallery-cin-item');
+  // Usar scroll listener en vez de IO con root (falla con transform en el parent)
+  function checkGallery() {
+    cinItems.forEach(function(el) {
+      var r = el.getBoundingClientRect();
+      if(r.top < window.innerHeight * 1.1) el.classList.add('in-view');
+    });
+  }
+  setTimeout(checkGallery, 200);
+  document.getElementById('proj-detail').addEventListener('scroll', checkGallery, { passive: true });
+
+  // Equipo
+  document.getElementById('detail-team').innerHTML = p.team.map(function(m){
+    return '<div class="team-row"><div class="team-av" style="background:'+m.bg+';color:'+m.color+'">'+m.initials+'</div><div><div class="team-nm">'+m.name+'</div><div class="team-rl">'+m.role+'</div></div></div>';
+  }).join('');
+
+  // Counter + prev/next
+  document.getElementById('detail-counter').textContent = String(idx+1).padStart(2,'0')+' / '+String(PROJECT_ORDER.length).padStart(2,'0');
+  // prev/next handled by teaser section
+
+  // Próximo proyecto teaser
+  var nextEl = document.getElementById('detail-next-proj');
+  var nextBg = document.getElementById('detail-next-bg');
+  var nextTitle = document.getElementById('detail-next-title');
+  if(idx < PROJECT_ORDER.length-1) {
+    var np = PROJECTS[PROJECT_ORDER[idx+1]];
+    if(np) {
+      nextTitle.innerHTML = np.title + ' <em>' + np.titleEm + '</em>';
+      var npCover = (np.gallery && np.gallery[0] && np.gallery[0].img) ? np.gallery[0].img : '';
+      nextBg.style.cssText = 'position:absolute;inset:0;transform:scale(1.06);transition:transform .8s cubic-bezier(.16,1,.3,1);background-size:cover;background-position:center;'
+        + (npCover ? "background-image:url('"+npCover+"')" : 'background:linear-gradient(145deg,#131210,#201e18)');
+      nextEl.style.display = '';
+    }
+  } else {
+    nextEl.style.display = 'none';
   }
 
-  // Prev/Next
-  const idx = PROJECT_ORDER.indexOf(id);
-  document.getElementById('detail-prev').style.opacity = idx > 0 ? '1' : '0.3';
-  document.getElementById('detail-next').style.opacity = idx < PROJECT_ORDER.length-1 ? '1' : '0.3';
+  // Reset reveals — forzar reflow para que transition funcione
+  document.querySelectorAll('#proj-detail .d-reveal').forEach(function(el){ 
+    el.classList.remove('in');
+    el.style.transition = 'none';
+  });
 
-  // Open
-  const detail = document.getElementById('proj-detail');
+  // Abrir
+  var detail = document.getElementById('proj-detail');
   detail.classList.add('open');
   detail.scrollTop = 0;
   document.body.style.overflow = 'hidden';
+  if(window.__lenis) window.__lenis.stop();
+
+  // Scroll progress + reveals
+  setTimeout(function(){ 
+    // Restaurar transitions antes del reveal
+    document.querySelectorAll('#proj-detail .d-reveal').forEach(function(el){ el.style.transition = ''; });
+    initDetailReveal(detail); 
+  }, 300);
+
+  // Progress bar
+  var prog = document.getElementById('detail-progress');
+  detail.addEventListener('scroll', function onScroll(){
+    if(!detail.classList.contains('open')){ detail.removeEventListener('scroll',onScroll); return; }
+    var pct = detail.scrollTop / (detail.scrollHeight - detail.clientHeight) * 100;
+    prog.style.width = Math.min(pct,100)+'%';
+  }, {passive:true});
 }
 
-function selectThumb(el, accent) {
-  document.querySelectorAll('.gallery-thumb').forEach(t => { t.classList.remove('active'); t.style.outline = ''; });
-  el.classList.add('active');
-  el.style.outline = `2px solid ${accent}`;
-  const img = el.getAttribute('data-img');
-  const name = el.getAttribute('data-cap');
-  document.getElementById('detail-gallery-main-bg').innerHTML = img
-    ? `<div style="width:100%;height:100%;background-image:url('${img}');background-size:cover;background-position:center"></div>`
-    : `<div style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1rem;width:100%;height:100%;background:rgba(240,236,228,.025)">
-      <span style="font-size:3rem;opacity:.12">◻</span>
-      <span style="font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;color:rgba(240,236,228,.2);text-align:center;padding:0 2rem">${name}</span>
-      <span style="font-family:var(--mono);font-size:.5rem;color:rgba(240,236,228,.12);text-align:center">Agrega tu imagen aquí</span>
-    </div>`;
+function initDetailReveal(panel) {
+  var els = panel.querySelectorAll('.d-reveal');
+  if(!els.length) return;
+  // IO con root:panel falla cuando el panel tiene transform CSS
+  // Usamos scroll listener + viewport check en su lugar
+  function checkReveal() {
+    var panelRect = panel.getBoundingClientRect();
+    els.forEach(function(el) {
+      if(el.classList.contains('in')) return;
+      var r = el.getBoundingClientRect();
+      // El elemento está visible dentro del viewport (panel ocupa inset:0)
+      if(r.top < window.innerHeight * 0.92 && r.bottom > 0) {
+        el.classList.add('in');
+      }
+    });
+  }
+  // Revisar inmediatamente + al scrollear dentro del panel
+  setTimeout(checkReveal, 80);
+  panel.addEventListener('scroll', checkReveal, { passive: true });
 }
 
 function closeDetail() {
-  const detail = document.getElementById('proj-detail');
+  var detail = document.getElementById('proj-detail');
   detail.classList.remove('open');
   document.body.style.overflow = '';
+  var prog = document.getElementById('detail-progress');
+  if(prog) prog.style.width = '0%';
+  if(window.__lenis) window.__lenis.start();
 }
 
 function navProject(dir) {
-  const idx = PROJECT_ORDER.indexOf(currentProject);
-  const newIdx = idx + dir;
+  var idx = PROJECT_ORDER.indexOf(currentProject);
+  var newIdx = idx + dir;
   if(newIdx >= 0 && newIdx < PROJECT_ORDER.length) {
     openProject(PROJECT_ORDER[newIdx]);
-    document.getElementById('proj-detail').scrollTop = 0;
+    var pd = document.getElementById('proj-detail');
+    if(pd) pd.scrollTop = 0;
   }
 }
 
@@ -1349,8 +1646,14 @@ document.addEventListener('keydown', e => {
 });
 
 // ═══ GSAP ═══════════════════════════════════════════════════════════════════
-gsap.registerPlugin(ScrollTrigger);
 const EASE = "cubic-bezier(0.23,1,0.32,1)";
+
+if(typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined'){
+  // Fallback: si GSAP no carga (sin conexión, CDN bloqueado o vista previa),
+  // mostramos TODO el contenido sin animación para que nada quede invisible.
+  document.querySelectorAll('.rev,.rev-l').forEach(el=>el.classList.add('in'));
+} else {
+gsap.registerPlugin(ScrollTrigger);
 
 // Hero entrance timeline
 const heroTL = gsap.timeline({ defaults:{ ease:EASE } });
@@ -1406,10 +1709,18 @@ if(statsBar) {
 ['#panel-arq .pc','#panel-uni .uni-card','#panel-int .int-card'].forEach(sel => {
   const items = document.querySelectorAll(sel);
   if(!items.length) return;
-  gsap.from(items, {
-    scrollTrigger:{ trigger:items[0].closest('.cat-panel'), start:'top 80%', toggleActions:'play none none none' },
-    y:50, opacity:0, duration:.9, stagger:.06, ease:EASE, clearProps:'filter'
-  });
+  const panel = items[0].closest('.cat-panel');
+  const animate = () => gsap.fromTo(items,
+    { y:40, opacity:0 },
+    { y:0, opacity:1, duration:.8, stagger:.05, ease:EASE, clearProps:'all', overwrite:true }
+  );
+  const rect = panel.getBoundingClientRect();
+  if(rect.top < window.innerHeight) {
+    // Ya visible al cargar — animar con pequeño delay
+    gsap.delayedCall(.15, animate);
+  } else {
+    ScrollTrigger.create({ trigger:panel, start:'top 90%', once:true, onEnter:animate });
+  }
 });
 
 // Section headers dramatic reveal
@@ -1432,6 +1743,138 @@ gsap.from('.exp-item', {
   y:30, opacity:0, duration:.7, stagger:.08, ease:EASE
 });
 
+// ══════════════════════════════════════════════════════════════
+// LENIS SMOOTH SCROLL
+// ══════════════════════════════════════════════════════════════
+var lenis;
+if(typeof Lenis !== 'undefined') {
+  lenis = new Lenis({
+    duration: 0.65,
+    easing: function(t){ return Math.min(1, 1.001 - Math.pow(2, -10*t)); },
+    wheelMultiplier: 0.85,
+    touchMultiplier: 1.5,
+    infinite: false,
+  });
+  gsap.ticker.add(function(time){ lenis.raf(time * 1000); });
+  gsap.ticker.lagSmoothing(0);
+  lenis.on('scroll', ScrollTrigger.update);
+  window.__lenis = lenis;
+}
+
+// ══════════════════════════════════════════════════════════════
+// HERO PARALLAX — contenido sube, fondo se queda
+// ══════════════════════════════════════════════════════════════
+gsap.to('.hero-content', {
+  scrollTrigger: { trigger:'#hero', start:'top top', end:'bottom top', scrub:1 },
+  y: 180, opacity: 0, ease: 'none'
+});
+gsap.to('.hero-grid', {
+  scrollTrigger: { trigger:'#hero', start:'top top', end:'bottom top', scrub:2.5 },
+  y: 120, ease: 'none'
+});
+gsap.to('.hero-scroll', {
+  scrollTrigger: { trigger:'#hero', start:'top top', end:'30% top', scrub:1 },
+  opacity: 0, ease: 'none'
+});
+
+// ══════════════════════════════════════════════════════════════
+// PROJECT CARDS — parallax en imagen al scrollear
+// ══════════════════════════════════════════════════════════════
+document.querySelectorAll('.pc').forEach(function(card){
+  var pv = card.querySelector('.pv');
+  if(pv) {
+    gsap.fromTo(pv,
+      { y: '-6%' },
+      {
+        scrollTrigger: { trigger: card, start:'top bottom', end:'bottom top', scrub: 1.5 },
+        y: '6%', ease: 'none'
+      }
+    );
+  }
+});
+
+// ══════════════════════════════════════════════════════════════
+// CLIP-PATH REVEALS — títulos principales emergen desde abajo
+// ══════════════════════════════════════════════════════════════
+document.querySelectorAll('.pi-title, .cat-header-title, .exp-ttl, .ct-big').forEach(function(el){
+  gsap.from(el, {
+    scrollTrigger: { trigger: el, start:'top 92%', toggleActions:'play none none none' },
+    y: 50,
+    clipPath: 'inset(0 0 100% 0)',
+    duration: 1.1,
+    ease: 'cubic-bezier(0.16,1,0.3,1)'
+  });
+});
+
+// Labels con línea que se expande
+document.querySelectorAll('.pi-label, .exp-lbl, .about-lbl, .ct-lbl').forEach(function(el){
+  gsap.from(el, {
+    scrollTrigger: { trigger: el, start:'top 90%', toggleActions:'play none none none' },
+    x: -20, opacity: 0, duration: 0.7,
+    ease: 'cubic-bezier(0.16,1,0.3,1)'
+  });
+});
+
+// Brand line expande de izquierda a derecha
+gsap.from('.brand-line', {
+  scrollTrigger: { trigger:'.brand-line', start:'top 88%', toggleActions:'play none none none' },
+  scaleX: 0, transformOrigin: 'left center', duration: 0.9,
+  ease: 'cubic-bezier(0.16,1,0.3,1)'
+});
+
+// ══════════════════════════════════════════════════════════════
+// MAGNETIC BUTTONS — CTAs se mueven hacia el cursor
+// ══════════════════════════════════════════════════════════════
+document.querySelectorAll('.btn-r, .btn-o, .nav-cta, .f-btn').forEach(function(btn){
+  btn.addEventListener('mousemove', function(e){
+    var r = btn.getBoundingClientRect();
+    var dx = (e.clientX - r.left - r.width * 0.5) * 0.28;
+    var dy = (e.clientY - r.top  - r.height * 0.5) * 0.28;
+    gsap.to(btn, { x: dx, y: dy, duration: 0.45, ease: 'power3.out', overwrite: true });
+  });
+  btn.addEventListener('mouseleave', function(){
+    gsap.to(btn, { x: 0, y: 0, duration: 0.65, ease: 'elastic.out(1,0.45)', overwrite: true });
+  });
+});
+
+// ══════════════════════════════════════════════════════════════
+// ABOUT BIO — palabras aparecen en cascada
+// ══════════════════════════════════════════════════════════════
+var bioParagraph = document.querySelector('.about-bio');
+if(bioParagraph) {
+  gsap.from(bioParagraph, {
+    scrollTrigger: { trigger: bioParagraph, start: 'top 85%', toggleActions:'play none none none' },
+    y: 40, opacity: 0, duration: 1,
+    ease: 'cubic-bezier(0.16,1,0.3,1)'
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+// CONTACT SECTION — entrada cinematográfica
+// ══════════════════════════════════════════════════════════════
+gsap.from('.ct-l', {
+  scrollTrigger: { trigger: '#contact', start:'top 75%', toggleActions:'play none none none' },
+  x: -60, opacity: 0, duration: 1.1,
+  ease: 'cubic-bezier(0.16,1,0.3,1)'
+});
+gsap.from('.ct-r', {
+  scrollTrigger: { trigger: '#contact', start:'top 75%', toggleActions:'play none none none' },
+  x: 60, opacity: 0, duration: 1.1, delay: 0.15,
+  ease: 'cubic-bezier(0.16,1,0.3,1)'
+});
+
+// ══════════════════════════════════════════════════════════════
+// SOFTWARE GRID — stagger en cascada al entrar
+// ══════════════════════════════════════════════════════════════
+gsap.from('.sw', {
+  scrollTrigger: { trigger:'.sw-grid', start:'top 82%', toggleActions:'play none none none' },
+  y: 30, opacity: 0, duration: 0.6,
+  stagger: { amount: 0.5, from: 'start' },
+  ease: 'cubic-bezier(0.23,1,0.32,1)'
+});
+
+} // fin del bloque GSAP (cierre del else de feature-check)
+
 // ═══ CURSOR SPOTLIGHT on cards ══════════════════════════════════════════════
 document.querySelectorAll('.pc,.uni-card,.int-card').forEach(card => {
   card.addEventListener('mousemove', e => {
@@ -1446,6 +1889,37 @@ const cur=document.getElementById('cur'),ring=document.getElementById('cur-r');
 let mx=0,my=0,rx=0,ry=0;
 document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px'});
 (function loop(){rx+=(mx-rx)*.1;ry+=(my-ry)*.1;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(loop)})();
+
+// ═══ PRELOADER ════════════════════════════════════════════════════════════════
+var pl=document.getElementById('preloader');
+if(pl){
+  setTimeout(function(){
+    pl.style.transition='opacity .4s';
+    pl.style.opacity='0';
+    setTimeout(function(){ pl.style.display='none'; }, 420);
+  }, 800);
+}
+
+// ═══ MOBILE MENU ══════════════════════════════════════════════════════════════
+const burger = document.getElementById('nav-burger');
+const drawer = document.getElementById('mobile-drawer');
+function openMobileMenu(){
+  burger.classList.add('open');
+  drawer.classList.add('open');
+  burger.setAttribute('aria-expanded','true');
+  document.body.style.overflow='hidden';
+}
+function closeMobileMenu(){
+  burger.classList.remove('open');
+  drawer.classList.remove('open');
+  burger.setAttribute('aria-expanded','false');
+  document.body.style.overflow='';
+}
+burger.addEventListener('click',()=>{
+  burger.classList.contains('open') ? closeMobileMenu() : openMobileMenu();
+});
+// Close on Escape
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeMobileMenu(); });
 
 // Nav scroll
 const nav=document.getElementById('nav');
@@ -1463,27 +1937,32 @@ function switchCat(cat,btn){
 
 // Smooth scroll
 document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{
-  const t=document.querySelector(a.getAttribute('href'));
+  const href=a.getAttribute('href');
+  if(href==='#'){e.preventDefault();window.scrollTo({top:0,behavior:'smooth'});return;}
+  const t=document.querySelector(href);
   if(t){e.preventDefault();window.scrollTo({top:t.offsetTop-75,behavior:'smooth'});}
 }));
 
 // Scroll reveal handled by GSAP ScrollTrigger above
 
-
-
-// ── Fix definitivo de revelado: garantizar que TODO el contenido sea visible ──
-window.addEventListener('load', () => {
-  setTimeout(() => {
-    try { if (window.ScrollTrigger) ScrollTrigger.getAll().forEach(t => t.kill(false)); } catch(e){}
-    const sel = '.rev,.rev-l,.pc,.uni-card,.int-card,.sw,.exp-item,.exp-ttl,.about-bio,.ct-big';
-    document.querySelectorAll(sel).forEach(el => {
-      try { if (window.gsap) gsap.set(el, {clearProps:'all'}); } catch(e){}
-      el.classList.add('in');
-      el.style.opacity='1'; el.style.transform='none'; el.style.filter='none';
-    });
-  }, 300);
-});
-
+// ═══ MARQUEE TICKER ═══════════════════════════════════════════════════════════
+(function(){
+  const track = document.getElementById('marquee-track');
+  if(!track) return;
+  const items = [
+    'Farallones Mall','Vibe Suiza Tower','Hotel Sevilla','Farallones 125',
+    'Farallones Tower ET02','Casa Gaudí','Dermalaser Ciudad Jardín',
+    'Vivienda VIS / VIP','Corazón de Pance','Salón Los Libertadores',
+    'Concurso ALACERO','Residencia para Artistas',
+    'Oficina Naples Holguines','Oficina Naples Torre de Cali',
+    'Apartamento Borbolla','Apartamento Enramadilla',
+    'Remodelación Apartamento','Gerencia Unicentro','Pance 124'
+  ];
+  const html = items.map(t =>
+    `<span class="marquee-item"><span class="marquee-dot"></span><span class="marquee-text">${t}</span></span>`
+  ).join('');
+  track.innerHTML = html + html;
+})();
 </script>
 </body>
 </html>
